@@ -2,11 +2,6 @@ require 'fileutils'
 require 'faraday'
 require 'yaml'
 
-require 'faraday'
-require 'json'
-require 'fileutils'
-require 'yaml'
-
 module Bloomy
   class Configuration
     attr_accessor :api_key
