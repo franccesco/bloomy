@@ -40,7 +40,7 @@ module Bloomy
     def load_api_key
       return nil unless File.exist?(config_file)
 
-      YAML.load_file(config_file)['api_key']
+      YAML.load_file(config_file)[:api_key]
     end
 
     def config_dir
