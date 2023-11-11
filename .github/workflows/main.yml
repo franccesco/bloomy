@@ -19,6 +19,7 @@ jobs:
     env:
       USERNAME: ${{ secrets.USERNAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
+      MEETING_ID: ${{ vars.MEETING_ID }}
     steps:
     - uses: actions/checkout@v4
     - name: Set up Ruby
