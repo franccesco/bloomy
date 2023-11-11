@@ -16,6 +16,9 @@ jobs:
         ruby:
           - '3.2.2'
 
+    env:
+      USERNAME: ${{ secrets.USERNAME }}
+      PASSWORD: ${{ secrets.PASSWORD }}
     steps:
     - uses: actions/checkout@v4
     - name: Set up Ruby
