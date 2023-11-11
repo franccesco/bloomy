@@ -54,5 +54,15 @@ RSpec.describe Bloomy do
         }
       )
     end
+
+    it "returns the meetings visible to the user" do
+      meetings = client.get_meetings
+      expect(meetings).to include(
+        {
+          id: a_kind_of(Integer),
+          name: a_kind_of(String),
+        }
+      )
+    end
   end
 end

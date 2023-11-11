@@ -24,10 +24,14 @@ module Bloomy
       response = @conn.get('users/mine').body
     end
 
-    # get my direct reports
     def get_direct_reports
       response = @conn.get('users/minedirectreports').body
       direct_reports = response.map { |report| { name: report['Name'], id: report['Id'] } }
+    end
+
+    def get_meetings
+      response = @conn.get('L10/list').body
+      meetings = response.map { |meeting| { id: meeting['Id'], name: meeting['Name'] } }
     end
   end
 end
