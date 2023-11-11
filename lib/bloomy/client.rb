@@ -33,5 +33,10 @@ module Bloomy
       response = @conn.get('L10/list').body
       meetings = response.map { |meeting| { id: meeting['Id'], name: meeting['Name'] } }
     end
+
+    def get_meeting_attendees(meeting_id)
+      response = @conn.get("L10/#{meeting_id}/attendees").body
+      attendees = response.map { |attendee| { name: attendee['Name'], id: attendee['Id'] } }
+    end
   end
 end

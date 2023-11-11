@@ -5,6 +5,7 @@ require 'bloomy'
 RSpec.describe Bloomy do
   let(:username) { ENV['USERNAME'] }
   let(:password) { ENV['PASSWORD'] }
+  let(:meeting_id) { ENV['MEETING_ID'] }
   let(:config_file) { File.expand_path('~/.bloomy/config.yaml') }
   let(:config) { Bloomy::Configuration.new }
   let(:client) { Bloomy::Client.new }
@@ -63,6 +64,10 @@ RSpec.describe Bloomy do
           name: a_kind_of(String),
         }
       )
+    end
+
+    it "returns the attendees of a meeting" do
+      attendees = client.get_meeting_attendees(meeting_id)
     end
   end
 end
