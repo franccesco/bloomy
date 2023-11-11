@@ -6,6 +6,7 @@ RSpec.describe Bloomy do
   let(:username) { ENV['USERNAME'] }
   let(:password) { ENV['PASSWORD'] }
   let(:config) { Bloomy::Configuration.new }
+  let(:config_file) { File.expand_path('~/.bloomy/config.yaml') }
 
   it "has a version number" do
     expect(Bloomy::VERSION).not_to be nil
@@ -13,6 +14,7 @@ RSpec.describe Bloomy do
 
   context "when configuring the API key" do
     before do
+      File.delete(config_file) if File.exist?(config_file)
       config.configure_api_key(username, password, true)
     end
 
@@ -21,11 +23,11 @@ RSpec.describe Bloomy do
     end
 
     it "stores the API key in ~/.bloomy/config.yaml" do
-      expect(File.exist?(File.expand_path('~/.bloomy/config.yaml'))).to be true
+      expect(File.exist?(config_file)).to be true
     end
 
     it "loads the stored API key" do
-      loaded_config = YAML.load_file(File.expand_path('~/.bloomy/config.yaml'))
+      loaded_config = YAML.load_file(config_file)
       expect(loaded_config[:api_key]).not_to be nil
     end
   end
