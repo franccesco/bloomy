@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'bloomy'
-
 RSpec.describe Bloomy do
   let(:username) { ENV['USERNAME'] }
   let(:password) { ENV['PASSWORD'] }
@@ -14,7 +12,7 @@ RSpec.describe Bloomy do
     expect(Bloomy::VERSION).not_to be nil
   end
 
-  context "when configuring the API key" do
+  context "when configuring the API key", :vcr do
     before do
       File.delete(config_file) if File.exist?(config_file)
       config.configure_api_key(username, password, true)
@@ -34,7 +32,7 @@ RSpec.describe Bloomy do
     end
   end
 
-  context "when interacting with the API via the client" do
+  context "when interacting with the API via the client", :vcr do
     it "returns the main user's details" do
       user_details = client.get_user_details
           expect(user_details).to include(
@@ -46,7 +44,7 @@ RSpec.describe Bloomy do
           )
     end
 
-    it "returns the main user's direct reports" do
+    it "returns the main user's direct reports", :vcr do
       direct_reports = client.get_direct_reports
       expect(direct_reports).to include(
         {
@@ -56,7 +54,7 @@ RSpec.describe Bloomy do
       )
     end
 
-    it "returns the meetings visible to the user" do
+    it "returns the meetings visible to the user", :vcr do
       meetings = client.get_meetings
       expect(meetings).to include(
         {
@@ -66,11 +64,11 @@ RSpec.describe Bloomy do
       )
     end
 
-    it "returns the attendees of a meeting" do
+    it "returns the attendees of a meeting", :vcr do
       attendees = client.get_meeting_attendees(meeting_id)
     end
 
-    it "returns the issues attached to a meeting" do
+    it "returns the issues attached to a meeting", :vcr do
       issues = client.get_meeting_issues(meeting_id, include_closed = true)
       expect(issues).to include(
         {
@@ -86,7 +84,7 @@ RSpec.describe Bloomy do
       )
     end
 
-    it "returns my rocks" do
+    it "returns my rocks", :vcr do
       rocks = client.get_my_rocks
       expect(rocks).to include(
         {
@@ -99,7 +97,7 @@ RSpec.describe Bloomy do
       )
     end
 
-    it "returns my archived rocks" do
+    it "returns my archived rocks", :vcr do
       archived_rocks = client.get_my_archived_rocks
       expect(archived_rocks).to include(
         {
