@@ -2,10 +2,11 @@ require 'faraday'
 require_relative 'operations/users'
 require_relative 'operations/meetings'
 require_relative 'operations/rocks'
+require_relative 'operations/todos'
 
 module Bloomy
   class Client
-    include ClientOperations, MeetingOperations, RockOperations
+    include ClientOperations, MeetingOperations, RockOperations, TodoOperations
     attr_reader :configuration
 
     def initialize
