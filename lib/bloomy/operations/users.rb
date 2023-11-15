@@ -1,5 +1,5 @@
 module Bloomy
-  module ClientOperations
+  module UserOperations
     def get_user_details
       response = @conn.get('users/mine').body
     end
