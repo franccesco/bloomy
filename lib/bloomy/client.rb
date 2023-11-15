@@ -7,7 +7,11 @@ require_relative 'operations/measurables'
 
 module Bloomy
   class Client
-    include ClientOperations, MeetingOperations, RockOperations, TodoOperations, MeasurableOperations
+    include ClientOperations,
+            MeetingOperations,
+            RockOperations,
+            TodoOperations,
+            MeasurableOperations
     attr_reader :configuration
 
     def initialize
