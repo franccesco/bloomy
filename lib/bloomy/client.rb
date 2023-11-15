@@ -7,7 +7,7 @@ require_relative 'operations/measurables'
 
 module Bloomy
   class Client
-    include ClientOperations,
+    include UserOperations,
             MeetingOperations,
             RockOperations,
             TodoOperations,
