@@ -121,5 +121,17 @@ RSpec.describe Bloomy do
         }
       )
     end
+
+    it "returns the current week via API", :vcr do
+      current_week = client.get_current_week
+      expect(current_week).to include(
+        {
+          id: a_kind_of(Integer),
+          week_number: a_kind_of(Integer),
+          week_start: a_kind_of(String),
+          week_end: a_kind_of(String),
+        }
+      )
+    end
   end
 end
