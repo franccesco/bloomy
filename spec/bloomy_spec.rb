@@ -136,7 +136,7 @@ RSpec.describe Bloomy do
 
     it "returns my current scorecard", :vcr do
       current_week = client.get_current_week
-      scorecards = client.get_current_scorecard(current_week[:week_number])
+      scorecards = client.get_current_scorecards
       expect(scorecards).to include(
         {
           id: a_kind_of(Integer),
@@ -149,9 +149,7 @@ RSpec.describe Bloomy do
     end
 
     it "updates the current week's scorecard" do
-      current_week = client.get_current_week
-      week_number = current_week[:week_number]
-      id_to_update = client.get_current_scorecard(week_number)[0][:id]
+      id_to_update = client.get_current_scorecards[0][:id]
       should_return_true = client.update_current_scorecard(id_to_update, 3.0)
       expect(should_return_true).to be true
     end
