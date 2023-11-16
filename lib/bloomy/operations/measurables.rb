@@ -12,7 +12,7 @@ module Bloomy
       }
     end
 
-    def get_current_scorecard(week_number)
+    def get_current_scorecards
       response = @conn.get("scorecard/user/mine").body
       current_week = get_current_week[:week_number]
 
