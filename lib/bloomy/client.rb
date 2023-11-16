@@ -4,6 +4,7 @@ require_relative 'operations/meetings'
 require_relative 'operations/rocks'
 require_relative 'operations/todos'
 require_relative 'operations/measurables'
+require_relative 'operations/issues'
 
 module Bloomy
   class Client
@@ -11,7 +12,8 @@ module Bloomy
             MeetingOperations,
             RockOperations,
             TodoOperations,
-            MeasurableOperations
+            MeasurableOperations,
+            IssueOperations
     attr_reader :configuration
 
     def initialize
