@@ -16,7 +16,7 @@ RSpec.describe "Measurable Operations" do
 
     it "returns my current scorecard", :vcr do
       current_week = client.get_current_week
-      scorecards = client.get_current_scorecards
+      scorecards = client.get_my_scorecards
       expect(scorecards).to include(
         {
           id: a_kind_of(Integer),
@@ -24,12 +24,13 @@ RSpec.describe "Measurable Operations" do
           target: a_kind_of(Float),
           value: a_kind_of(Float).or(be_nil),
           updated_at: a_kind_of(String).or(be_nil),
+          week_number: a_kind_of(Integer),
         }
       )
     end
 
     it "updates the current week's scorecard" do
-      id_to_update = client.get_current_scorecards[0][:id]
+      id_to_update = client.get_my_scorecards[0][:id]
       should_return_true = client.update_current_scorecard(id_to_update, 3.0)
       expect(should_return_true).to be true
     end

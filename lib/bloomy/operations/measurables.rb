@@ -12,20 +12,24 @@ module Bloomy
       }
     end
 
-    def get_current_scorecards
+    def get_my_scorecards(current_week_only = true, show_empty = true)
       response = @conn.get("scorecard/user/mine").body
-      current_week = get_current_week[:week_number]
+      scorecards = response['Scores'].map do |scorecard|
+        {
+          id: scorecard['Id'],
+          title: scorecard['MeasurableName'],
+          target: scorecard['Target'],
+          value: scorecard['Measured'],
+          updated_at: scorecard['DateEntered'],
+          week_number: scorecard['ForWeek']
+        }
+      end
 
-      current_scorecard = response['Scores']
-        .select { |scorecard| scorecard['ForWeek'] == current_week }
-        .map do |scorecard|
-          {
-            id: scorecard['Id'],
-            title: scorecard['MeasurableName'],
-            target: scorecard['Target'],
-            value: scorecard['Measured'],
-            updated_at: scorecard['DateEntered']
-          }
+      if current_week_only
+        current_week = get_current_week[:week_number]
+        scorecards.select { |scorecard| scorecard[:week_number] == current_week && (show_empty || scorecard[:value].nil?) }
+      else
+        scorecards.select { |scorecard| show_empty || scorecard[:value].nil? }
       end
     end
 
