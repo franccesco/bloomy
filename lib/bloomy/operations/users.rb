@@ -20,8 +20,6 @@ module Bloomy
       position_response.map { |position| { name: position['Group']['Position']['Name'], id: position['Group']['Position']['Id'] } }
     end
 
-    private
-
     def get_my_user_id
       response = @conn.get('users/mine').body
       response['Id']
