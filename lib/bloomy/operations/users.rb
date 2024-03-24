@@ -1,6 +1,6 @@
 module Bloomy
   module UserOperations
-    def get_user_details(user_id, direct_reports: false, positions: false, all: false)
+    def get_user_details(user_id: get_my_user_id, direct_reports: false, positions: false, all: false)
       response = @conn.get("users/#{user_id}").body
       user_details = { name: response['Name'], id: response['Id'], image_url: response['ImageUrl'] }
 
@@ -18,6 +18,13 @@ module Bloomy
     def get_positions(user_id)
       position_response = @conn.get("users/#{user_id}/seats").body
       position_response.map { |position| { name: position['Group']['Position']['Name'], id: position['Group']['Position']['Id'] } }
+    end
+
+    private
+
+    def get_my_user_id
+      response = @conn.get('users/mine').body
+      response['Id']
     end
   end
 end
