@@ -4,7 +4,10 @@ module Bloomy
       response = @conn.get("users/#{user_id}").body
       user_details = { name: response['Name'], id: response['Id'], image_url: response['ImageUrl'] }
     end
+
+    def get_my_details
       response = @conn.get('users/mine').body
+      user_details = { name: response['Name'], id: response['Id'], image_url: response['ImageUrl'] }
     end
 
     def get_direct_reports
