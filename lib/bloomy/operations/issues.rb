@@ -2,17 +2,37 @@ require 'json'
 
 module Bloomy
   module IssueOperations
-    def get_my_issues
-      response = @conn.get('issues/users/mine').body
+  include Bloomy::UserOperations
+
+    def get_issue(issue_id)
+      response = @conn.get("issues/#{issue_id}").body
+      issue = {
+        id: response['Id'],
+        title: response['Name'],
+        notes_url: response['DetailsUrl'],
+        created_at: response['CreateTime'],
+        completed_at: response['CloseTime'],
+        meeting_details: {
+          id: response['OriginId'],
+          name: response['Origin']
+        },
+        owner_details: {
+          id: response['Owner']['Id'],
+          name: response['Owner']['Name'],
+        }
+      }
+    end
+
+    def get_user_issues(user_id: get_my_user_id)
+      response = @conn.get("issues/users/#{user_id}").body
       issues = response.map do |issue|
         {
           id: issue['Id'],
           title: issue['Name'],
           notes_url: issue['DetailsUrl'],
           created_at: issue['CreateTime'],
-          completed_at: issue['CompleteTime'],
           meeting_id: issue['OriginId'],
-          meeting_name: issue['Origin']
+          meeting_name: issue['Origin'],
         }
       end
     end
