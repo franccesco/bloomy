@@ -1,4 +1,5 @@
 # Bloomy
+[![Ruby](https://github.com/franccesco/bloomy/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/franccesco/bloomy/actions/workflows/main.yml)
 
 TODO: Delete this and the text below, and describe your gem
 
