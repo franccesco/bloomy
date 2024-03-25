@@ -1,7 +1,8 @@
 module Bloomy
   module MeetingOperations
-    def get_meetings
-      response = @conn.get('L10/list').body
+  include Bloomy::UserOperations
+    def get_meetings(user_id: get_my_user_id)
+      response = @conn.get("L10/#{user_id}/list").body
       meetings = response.map { |meeting| { id: meeting['Id'], name: meeting['Name'] } }
     end
 
