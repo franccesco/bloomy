@@ -65,5 +65,21 @@ module Bloomy
         }
       end
     end
+
+    def get_meeting_details(meeting_id, include_closed: false)
+      meeting = get_meetings.find { |m| m[:id] == meeting_id }
+      attendees = get_meeting_attendees(meeting_id)
+      issues = get_meeting_issues(meeting_id, include_closed: include_closed)
+      todos = get_meeting_todos(meeting_id, include_closed: include_closed)
+      measurables = get_meeting_measurables(meeting_id)
+      {
+        id: meeting[:id],
+        name: meeting[:name],
+        attendees: attendees,
+        issues: issues,
+        todos: todos,
+        measurables: measurables
+      }
+    end
   end
 end
