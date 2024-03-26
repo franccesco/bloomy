@@ -81,5 +81,11 @@ module Bloomy
         measurables: measurables
       }
     end
+
+    def create_meeting(title:, add_self: true)
+      payload = { title: title, addSelf: add_self }.to_json
+      response = @conn.post("L10/create", payload).body
+      { meeting_id: response['meetingId']}
+    end
   end
 end
