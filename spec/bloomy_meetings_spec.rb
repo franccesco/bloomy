@@ -1,9 +1,9 @@
-# FILEPATH: /Users/fran/workspace/bloomy/spec/bloomy_meeting_operations_spec.rb
-
 RSpec.describe Bloomy::MeetingOperations do
   let(:client) { Bloomy::Client.new }
   let(:user_id) { client.get_my_user_id }
   let(:meeting_id) { client.get_meetings(user_id: user_id).first[:id] }
+  let(:title) { "Test Meeting" }
+  let(:attendees) { [ENV['ATTENDEE_ID'].to_i] }
 
   context "when interacting with meetings API" do
     it "returns a list of meetings" do
@@ -34,6 +34,32 @@ RSpec.describe Bloomy::MeetingOperations do
     it "returns meeting details" do
       details = client.get_meeting_details(meeting_id)
       expect(details).to include(:id, :name, :attendees, :issues, :todos, :measurables)
+    end
+
+    it "creates and deletes a meeting with a title, adds self and adds attendees" do
+      # Creates a meeting
+      response = client.create_meeting(title: title, add_self: true, attendees: attendees)
+      expect(response).to include(:meeting_id, :title, :attendees)
+      expect(response[:title]).to eq(title)
+      expect(response[:attendees]).to include(*attendees)
+
+      # Deletes the meeting
+      meeting_id = response[:meeting_id]
+      delete_response = client.delete_meeting(meeting_id)
+      expect(delete_response.status).to eq(200)
+    end
+
+    it "Creates a meeting with no attendees" do
+      # Creates a meeting
+      response = client.create_meeting(title: title)
+      expect(response).to include(:meeting_id, :title, :attendees)
+      expect(response[:title]).to eq(title)
+      expect(response[:attendees]).to be_empty
+
+      # Deletes the meeting
+      meeting_id = response[:meeting_id]
+      delete_response = client.delete_meeting(meeting_id)
+      expect(delete_response.status).to eq(200)
     end
   end
 end

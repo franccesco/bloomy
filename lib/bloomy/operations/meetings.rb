@@ -81,5 +81,20 @@ module Bloomy
         measurables: measurables
       }
     end
+
+    def create_meeting(title:, add_self: true, attendees: [])
+      payload = { title: title, addSelf: add_self }.to_json
+      response = @conn.post("L10/create", payload).body
+      meeting_id = response['meetingId']
+      meeting_details = { meeting_id: meeting_id, title: title }
+      attendees.each do |attendee|
+        @conn.post("L10/#{meeting_id}/attendees/#{attendee}")
+      end
+      meeting_details.merge(attendees: attendees)
+    end
+
+    def delete_meeting(meeting_id)
+      @conn.delete("L10/#{meeting_id}")
+    end
   end
 end
