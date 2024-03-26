@@ -60,4 +60,18 @@ RSpec.describe Bloomy::UserOperations do
       ))
     end
   end
+
+  describe '#search_users' do
+    it 'returns the users that match the search term' do
+      users = client.search_users('fran')
+      expect(users).to all(include(
+        id: a_kind_of(Integer),
+        name: a_kind_of(String),
+        description: a_kind_of(String),
+        email: a_kind_of(String),
+        organization_id: a_kind_of(Integer),
+        image_url: a_kind_of(String)
+      ))
+    end
+  end
 end

@@ -24,5 +24,19 @@ module Bloomy
       response = @conn.get('users/mine').body
       response['Id']
     end
+
+    def search_users(term)
+      response = @conn.get('search/user', term: term).body
+      response.map do |user|
+        {
+          id: user['Id'],
+          name: user['Name'],
+          description: user['Description'],
+          email: user['Email'],
+          organization_id: user['OrganizationId'],
+          image_url: user['ImageUrl']
+        }
+      end
+    end
   end
 end
