@@ -21,6 +21,7 @@ jobs:
       PASSWORD: ${{ secrets.PASSWORD }}
       MEETING_ID: ${{ vars.MEETING_ID }}
       ISSUE_ID: ${{ vars.ISSUE_ID }}
+      ATTENDEE_ID: ${{ vars.ATTENDEE_ID }}
     steps:
     - uses: actions/checkout@v4
     - name: Set up Ruby
