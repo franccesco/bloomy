@@ -92,5 +92,9 @@ module Bloomy
       end
       meeting_details.merge(attendees: attendees)
     end
+
+    def delete_meeting(meeting_id)
+      @conn.delete("L10/#{meeting_id}")
+    end
   end
 end
