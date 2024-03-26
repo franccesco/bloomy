@@ -44,5 +44,26 @@ module Bloomy
         }
       end
     end
+
+    def get_meeting_measurables(meeting_id)
+      response = @conn.get("L10/#{meeting_id}/measurables").body
+      measurables = response.map do |measurable|
+        {
+          id: measurable['Id'],
+          name: measurable['Name'].strip,
+          target: measurable['Target'],
+          operator: measurable['Direction'],
+          format: measurable['Modifiers'],
+          owner: {
+            id: measurable['Owner']['Id'],
+            name: measurable['Owner']['Name']
+          },
+          admin: {
+            id: measurable['Admin']['Id'],
+            name: measurable['Admin']['Name']
+          }
+        }
+      end
+    end
   end
 end
