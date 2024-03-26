@@ -36,18 +36,30 @@ RSpec.describe Bloomy::MeetingOperations do
       expect(details).to include(:id, :name, :attendees, :issues, :todos, :measurables)
     end
 
-    it "creates a meeting with a title, adds self and adds attendees" do
+    it "creates and deletes a meeting with a title, adds self and adds attendees" do
+      # Creates a meeting
       response = client.create_meeting(title: title, add_self: true, attendees: attendees)
       expect(response).to include(:meeting_id, :title, :attendees)
       expect(response[:title]).to eq(title)
       expect(response[:attendees]).to include(*attendees)
+
+      # Deletes the meeting
+      meeting_id = response[:meeting_id]
+      delete_response = client.delete_meeting(meeting_id)
+      expect(delete_response.status).to eq(200)
     end
 
     it "Creates a meeting with no attendees" do
+      # Creates a meeting
       response = client.create_meeting(title: title)
       expect(response).to include(:meeting_id, :title, :attendees)
       expect(response[:title]).to eq(title)
       expect(response[:attendees]).to be_empty
+
+      # Deletes the meeting
+      meeting_id = response[:meeting_id]
+      delete_response = client.delete_meeting(meeting_id)
+      expect(delete_response.status).to eq(200)
     end
   end
 end
