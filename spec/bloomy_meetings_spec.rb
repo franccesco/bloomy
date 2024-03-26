@@ -35,5 +35,16 @@ RSpec.describe Bloomy::MeetingOperations do
       details = client.get_meeting_details(meeting_id)
       expect(details).to include(:id, :name, :attendees, :issues, :todos, :measurables)
     end
+
+    # Endpoint: /api/v1/L10/create
+    # Payload: { title: "string", addSelf: true }
+    # Response: { meetingId: 0 }
+    # Status: 200
+    it "creates a new meeting" do
+      title = "New Meeting Test"
+      response = client.create_meeting(title: title, add_self: true)
+      meeting_id = response[:meeting_id]
+      expect(meeting_id).to be_an(Integer)
+    end
   end
 end
