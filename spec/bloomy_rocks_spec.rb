@@ -1,9 +1,10 @@
-RSpec.describe "Rock Operations" do
+RSpec.describe Bloomy::RockOperations do
   let(:client) { Bloomy::Client.new }
+  let(:user_id) { client.get_my_user_id }
 
-  context "when interacting with rocks API", :vcr do
-    it "returns my rocks", :vcr do
-      rocks = client.get_my_rocks
+  context "when interacting with rocks API" do
+    it "returns user rocks" do
+      rocks = client.get_rocks(user_id: user_id)
       expect(rocks).to include(
         {
           id: a_kind_of(Integer),
@@ -12,11 +13,11 @@ RSpec.describe "Rock Operations" do
           due_date: a_kind_of(String),
           status: eq('Completed').or(eq('Incomplete'))
         }
-      )
-    end
+        )
+      end
 
-    it "returns my archived rocks", :vcr do
-      archived_rocks = client.get_my_archived_rocks
+    it "returns user archived rocks" do
+      archived_rocks = client.get_archived_rocks(user_id: user_id)
       expect(archived_rocks).to include(
         {
           id: a_kind_of(Integer),
