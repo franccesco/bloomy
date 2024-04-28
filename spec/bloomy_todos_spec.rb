@@ -1,9 +1,10 @@
-RSpec.describe "Todo Operations" do
+RSpec.describe Bloomy::TodoOperations do
   let(:client) { Bloomy::Client.new }
+  let(:user_id) { client.get_my_user_id }
 
-  context "when interacting with todos API", :vcr do
-    it "returns my pending todos", :vcr do
-      todos = client.get_my_todos
+  context "when interacting with todos API" do
+    it "returns user pending todos" do
+      todos = client.get_todos(user_id: user_id)
       expect(todos).to include(
         {
           id: a_kind_of(Integer),
