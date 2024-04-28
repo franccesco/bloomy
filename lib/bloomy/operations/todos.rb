@@ -1,8 +1,9 @@
 module Bloomy
   module TodoOperations
-    def get_my_todos
-      response = @conn.get('todo/users/mine').body
-      todos = response.map do |todo|
+    include Bloomy::UserOperations
+    def get_todos(user_id: get_my_user_id)
+      response = @conn.get("todo/user/#{get_my_user_id}").body
+      response.map do |todo|
         {
           id: todo['Id'],
           title: todo['Name'],
