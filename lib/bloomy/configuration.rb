@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'fileutils'
 require 'faraday'
 require 'yaml'
@@ -10,7 +12,7 @@ module Bloomy
       @api_key = ENV['API_KEY'] || load_api_key
     end
 
-    def configure_api_key(username, password, store_key=false)
+    def configure_api_key(username, password, store_key = false)
       return unless @api_key.nil?
 
       @api_key = fetch_api_key(username, password)
@@ -21,15 +23,16 @@ module Bloomy
 
     def fetch_api_key(username, password)
       conn = Faraday.new(url: 'https://app.bloomgrowth.com')
-      response = conn.post('/Token', "grant_type=password&userName=#{username}&password=#{password}", {'Content-Type' => 'application/x-www-form-urlencoded'})
+      response = conn.post('/Token', "grant_type=password&userName=#{username}&password=#{password}",
+                           { 'Content-Type' => 'application/x-www-form-urlencoded' })
       JSON.parse(response.body)['access_token']
     end
 
     def store_api_key
-      raise "API key is nil" if @api_key.nil?
+      raise 'API key is nil' if @api_key.nil?
 
       FileUtils.mkdir_p(config_dir)
-      File.write(config_file, {version: 1, api_key: @api_key}.to_yaml)
+      File.write(config_file, { version: 1, api_key: @api_key }.to_yaml)
     end
 
     def load_api_key

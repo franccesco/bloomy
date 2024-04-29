@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Bloomy
   module TodoOperations
     include Bloomy::UserOperations
