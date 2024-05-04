@@ -3,6 +3,7 @@
 require 'json'
 
 module Bloomy
+  # The Bloomy module provides operations related to measurables.
   module MeasurableOperations
     def get_current_week
       response = @conn.get('weeks/current').body
@@ -14,7 +15,7 @@ module Bloomy
       }
     end
 
-    def get_my_scorecards(current_week_only = true, show_empty = true)
+    def get_my_scorecards(current_week_only: true, show_empty: true)
       response = @conn.get('scorecard/user/mine').body
       scorecards = response['Scores'].map do |scorecard|
         {

@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 RSpec.describe 'Config Operations' do
-  let(:username) { ENV['USERNAME'] }
-  let(:password) { ENV['PASSWORD'] }
+  let(:username) { ENV.fetch('USERNAME', nil) }
+  let(:password) { ENV.fetch('PASSWORD', nil) }
   let(:config_file) { File.expand_path('~/.bloomy/config.yaml') }
   let(:config) { Bloomy::Configuration.new }
 
   context 'when configuring the API key', :vcr do
     before do
-      File.delete(config_file) if File.exist?(config_file)
-      config.configure_api_key(username, password, true)
+      FileUtils.rm_f(config_file)
+      config.configure_api_key(username, password, store_key: true)
     end
 
     it 'returns an API key' do

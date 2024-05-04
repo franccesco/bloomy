@@ -2,8 +2,8 @@
 
 RSpec.describe 'Issue Operations' do
   let(:client) { Bloomy::Client.new }
-  let(:meeting_id) { ENV['MEETING_ID'] }
-  let(:issue_id) { ENV['ISSUE_ID'] }
+  let(:meeting_id) { ENV.fetch('MEETING_ID', nil) }
+  let(:issue_id) { ENV.fetch('ISSUE_ID', nil) }
 
   context 'when interacting with issues API' do
     it 'returns the correct issue details' do

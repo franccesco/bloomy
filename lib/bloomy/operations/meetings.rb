@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Bloomy
+  # Operations related to meetings
   module MeetingOperations
     include Bloomy::UserOperations
     def get_meetings(user_id: get_my_user_id)

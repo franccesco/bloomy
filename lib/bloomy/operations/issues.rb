@@ -3,6 +3,7 @@
 require 'json'
 
 module Bloomy
+  # The Bloomy module provides operations related to issues.
   module IssueOperations
     include Bloomy::UserOperations
 

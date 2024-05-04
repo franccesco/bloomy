@@ -5,6 +5,7 @@ require 'faraday'
 require 'yaml'
 
 module Bloomy
+  # The Configuration class is responsible for managing the authentication
   class Configuration
     attr_accessor :api_key
 
@@ -12,7 +13,7 @@ module Bloomy
       @api_key = ENV['API_KEY'] || load_api_key
     end
 
-    def configure_api_key(username, password, store_key = false)
+    def configure_api_key(username, password, store_key: false)
       return unless @api_key.nil?
 
       @api_key = fetch_api_key(username, password)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Bloomy
+  # Operations related to users
   module UserOperations
     def get_user_details(user_id: get_my_user_id, direct_reports: false, positions: false, all: false)
       response = @conn.get("users/#{user_id}").body

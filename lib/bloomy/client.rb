@@ -9,6 +9,7 @@ require_relative 'operations/measurables'
 require_relative 'operations/issues'
 
 module Bloomy
+  # The Client class is the main entry point for interacting with the Bloomy API.
   class Client
     include IssueOperations
     include MeasurableOperations
