@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Bloomy
+  # Operations related to users
   module UserOperations
     def get_user_details(user_id: get_my_user_id, direct_reports: false, positions: false, all: false)
       response = @conn.get("users/#{user_id}").body
@@ -17,7 +20,9 @@ module Bloomy
 
     def get_positions(user_id)
       position_response = @conn.get("users/#{user_id}/seats").body
-      position_response.map { |position| { name: position['Group']['Position']['Name'], id: position['Group']['Position']['Id'] } }
+      position_response.map do |position|
+        { name: position['Group']['Position']['Name'], id: position['Group']['Position']['Id'] }
+      end
     end
 
     def get_my_user_id

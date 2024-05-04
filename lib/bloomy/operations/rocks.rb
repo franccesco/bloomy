@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Bloomy
+  # Operations for interacting with the Rocks API
   module RockOperations
     include Bloomy::UserOperations
     def get_rocks(user_id: get_my_user_id)

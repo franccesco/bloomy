@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday'
 require_relative 'operations/users'
 require_relative 'operations/meetings'
@@ -7,13 +9,14 @@ require_relative 'operations/measurables'
 require_relative 'operations/issues'
 
 module Bloomy
+  # The Client class is the main entry point for interacting with the Bloomy API.
   class Client
-    include UserOperations,
-            MeetingOperations,
-            RockOperations,
-            TodoOperations,
-            MeasurableOperations,
-            IssueOperations
+    include IssueOperations
+    include MeasurableOperations
+    include TodoOperations
+    include RockOperations
+    include MeetingOperations
+    include UserOperations
     attr_reader :configuration
 
     def initialize

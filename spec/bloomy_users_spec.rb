@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Bloomy::UserOperations do
   let(:client) { Bloomy::Client.new }
 
@@ -44,10 +46,10 @@ RSpec.describe Bloomy::UserOperations do
     it 'returns the direct reports of the user' do
       direct_reports = client.get_direct_reports(client.get_my_user_id)
       expect(direct_reports).to all(include(
-        name: a_kind_of(String),
-        id: a_kind_of(Integer),
-        image_url: a_kind_of(String)
-      ))
+                                      name: a_kind_of(String),
+                                      id: a_kind_of(Integer),
+                                      image_url: a_kind_of(String)
+                                    ))
     end
   end
 
@@ -55,9 +57,9 @@ RSpec.describe Bloomy::UserOperations do
     it 'returns the positions of the user' do
       positions = client.get_positions(client.get_my_user_id)
       expect(positions).to all(include(
-        name: a_kind_of(String),
-        id: a_kind_of(Integer)
-      ))
+                                 name: a_kind_of(String),
+                                 id: a_kind_of(Integer)
+                               ))
     end
   end
 
@@ -65,13 +67,13 @@ RSpec.describe Bloomy::UserOperations do
     it 'returns the users that match the search term' do
       users = client.search_users('fran')
       expect(users).to all(include(
-        id: a_kind_of(Integer),
-        name: a_kind_of(String),
-        description: a_kind_of(String),
-        email: a_kind_of(String),
-        organization_id: a_kind_of(Integer),
-        image_url: a_kind_of(String)
-      ))
+                             id: a_kind_of(Integer),
+                             name: a_kind_of(String),
+                             description: a_kind_of(String),
+                             email: a_kind_of(String),
+                             organization_id: a_kind_of(Integer),
+                             image_url: a_kind_of(String)
+                           ))
     end
   end
 end

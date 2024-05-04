@@ -1,19 +1,22 @@
+# frozen_string_literal: true
+
 module Bloomy
+  # Operations related to meetings
   module MeetingOperations
-  include Bloomy::UserOperations
+    include Bloomy::UserOperations
     def get_meetings(user_id: get_my_user_id)
       response = @conn.get("L10/#{user_id}/list").body
-      meetings = response.map { |meeting| { id: meeting['Id'], name: meeting['Name'] } }
+      response.map { |meeting| { id: meeting['Id'], name: meeting['Name'] } }
     end
 
     def get_meeting_attendees(meeting_id)
       response = @conn.get("L10/#{meeting_id}/attendees").body
-      attendees = response.map { |attendee| { name: attendee['Name'], id: attendee['Id'] } }
+      response.map { |attendee| { name: attendee['Name'], id: attendee['Id'] } }
     end
 
     def get_meeting_issues(meeting_id, include_closed: false)
       response = @conn.get("L10/#{meeting_id}/issues?include_resolved=#{include_closed}").body
-      issues = response.map do |issue|
+      response.map do |issue|
         {
           id: issue['Id'],
           title: issue['Name'],
@@ -30,7 +33,7 @@ module Bloomy
 
     def get_meeting_todos(meeting_id, include_closed: false)
       response = @conn.get("L10/#{meeting_id}/todos?INCLUDE_CLOSED=#{include_closed}").body
-      todos = response.map do |todo|
+      response.map do |todo|
         {
           id: todo['Id'],
           title: todo['Name'],
@@ -47,7 +50,7 @@ module Bloomy
 
     def get_meeting_measurables(meeting_id)
       response = @conn.get("L10/#{meeting_id}/measurables").body
-      measurables = response.map do |measurable|
+      response.map do |measurable|
         {
           id: measurable['Id'],
           name: measurable['Name'].strip,
@@ -84,7 +87,7 @@ module Bloomy
 
     def create_meeting(title:, add_self: true, attendees: [])
       payload = { title: title, addSelf: add_self }.to_json
-      response = @conn.post("L10/create", payload).body
+      response = @conn.post('L10/create', payload).body
       meeting_id = response['meetingId']
       meeting_details = { meeting_id: meeting_id, title: title }
       attendees.each do |attendee|
