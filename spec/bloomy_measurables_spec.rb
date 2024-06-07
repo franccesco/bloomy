@@ -5,7 +5,7 @@ RSpec.describe 'Measurable Operations' do
 
   context 'when interacting with measurables API', :vcr do
     it 'returns the current week via API', :vcr do
-      current_week = client.get_current_week
+      current_week = client.measurable.current_week
       expect(current_week).to include(
         {
           id: a_kind_of(Integer),
@@ -17,8 +17,8 @@ RSpec.describe 'Measurable Operations' do
     end
 
     it 'returns my current scorecard', :vcr do
-      client.get_current_week
-      scorecards = client.get_my_scorecards
+      client.measurable.current_week
+      scorecards = client.measurable.scorecard
       expect(scorecards).to include(
         {
           id: a_kind_of(Integer),
@@ -32,8 +32,8 @@ RSpec.describe 'Measurable Operations' do
     end
 
     it "updates the current week's scorecard" do
-      id_to_update = client.get_my_scorecards[0][:id]
-      should_return_true = client.update_current_scorecard(id_to_update, 3.0)
+      id_to_update = client.measurable.scorecard[0][:id]
+      should_return_true = client.measurable.update(id_to_update, 3.0)
       expect(should_return_true).to be true
     end
   end

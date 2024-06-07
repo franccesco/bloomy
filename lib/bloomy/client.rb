@@ -2,22 +2,16 @@
 
 require 'faraday'
 require_relative 'operations/users'
-require_relative 'operations/meetings'
-require_relative 'operations/rocks'
 require_relative 'operations/todos'
+require_relative 'operations/rocks'
+require_relative 'operations/meetings'
 require_relative 'operations/measurables'
 require_relative 'operations/issues'
 
 module Bloomy
   # The Client class is the main entry point for interacting with the Bloomy API.
   class Client
-    include IssueOperations
-    include MeasurableOperations
-    include TodoOperations
-    include RockOperations
-    include MeetingOperations
-    include UserOperations
-    attr_reader :configuration
+    attr_reader :configuration, :user, :todo, :rock, :meeting, :measurable, :issue
 
     def initialize
       @configuration = Configuration.new
@@ -29,11 +23,13 @@ module Bloomy
         faraday.headers['Content-Type'] = 'application/json'
         faraday.headers['Authorization'] = "Bearer #{configuration.api_key}"
       end
-      @user_id = nil
-    end
-
-    def configure
-      yield(configuration)
+      @user = User.new(@conn)
+      @user_id = @user.default_user_id
+      @todo = Todo.new(@conn, @user_id)
+      @rock = Rock.new(@conn, @user_id)
+      @meeting = Meeting.new(@conn, @user_id)
+      @measurable = Measurable.new(@conn, @user_id)
+      @issue = Issue.new(@conn, @user_id)
     end
   end
 end
