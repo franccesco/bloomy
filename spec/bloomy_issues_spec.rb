@@ -7,7 +7,7 @@ RSpec.describe 'Issue Operations' do
 
   context 'when interacting with issues API' do
     it 'returns the correct issue details' do
-      issue = client.get_issue(issue_id)
+      issue = client.issue.details(issue_id)
       expect(issue).to include(
         id: a_kind_of(Integer),
         title: a_kind_of(String),
@@ -26,7 +26,7 @@ RSpec.describe 'Issue Operations' do
     end
 
     it 'returns the correct issues for a user' do
-      issues = client.get_user_issues
+      issues = client.issue.list
       expect(issues).to all(include(
                               id: a_kind_of(Integer),
                               title: a_kind_of(String),
@@ -38,14 +38,14 @@ RSpec.describe 'Issue Operations' do
     end
 
     it 'creates and completes an issue' do
-      created_issue = client.create_issue('Test issue', meeting_id)
+      created_issue = client.issue.create('Test issue', meeting_id)
       expect(created_issue).to include(
         {
           id: a_kind_of(Integer),
           title: a_kind_of(String)
         }
       )
-      completed_issue = client.complete_issue(created_issue[:id])
+      completed_issue = client.issue.complete(created_issue[:id])
       expect(completed_issue).to be true
     end
   end
