@@ -10,10 +10,10 @@ repos:
       - id: check-added-large-files
   - repo: local
     hooks:
-      - id: rubocop
-        name: rubocop
-        description: Enforce the community Ruby Style Guide with RuboCop
-        entry: rubocop
+      - id: standardrb
+        name: standardrb
+        description: Enforce the community Ruby Style Guide with standardrb
+        entry: bundle exec standardrb
         language: ruby
         types: ["ruby"]
-        args: ["--autocorrect", "--force-exclusion"]
+        args: ["--fix"]

@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-RSpec.describe 'Issue Operations' do
+RSpec.describe "Issue Operations" do
   let(:client) { Bloomy::Client.new }
-  let(:meeting_id) { ENV.fetch('MEETING_ID', nil) }
-  let(:issue_id) { ENV.fetch('ISSUE_ID', nil) }
+  let(:meeting_id) { ENV.fetch("MEETING_ID", nil) }
+  let(:issue_id) { ENV.fetch("ISSUE_ID", nil) }
 
-  context 'when interacting with issues API' do
-    it 'returns the correct issue details' do
+  context "when interacting with issues API" do
+    it "returns the correct issue details" do
       issue = client.issue.details(issue_id)
       expect(issue).to include(
         id: a_kind_of(Integer),
@@ -25,20 +25,20 @@ RSpec.describe 'Issue Operations' do
       )
     end
 
-    it 'returns the correct issues for a user' do
+    it "returns the correct issues for a user" do
       issues = client.issue.list
       expect(issues).to all(include(
-                              id: a_kind_of(Integer),
-                              title: a_kind_of(String),
-                              notes_url: a_kind_of(String),
-                              created_at: a_kind_of(String),
-                              meeting_id: a_kind_of(Integer),
-                              meeting_name: a_kind_of(String)
-                            ))
+        id: a_kind_of(Integer),
+        title: a_kind_of(String),
+        notes_url: a_kind_of(String),
+        created_at: a_kind_of(String),
+        meeting_id: a_kind_of(Integer),
+        meeting_name: a_kind_of(String)
+      ))
     end
 
-    it 'creates and completes an issue' do
-      created_issue = client.issue.create('Test issue', meeting_id)
+    it "creates and completes an issue" do
+      created_issue = client.issue.create("Test issue", meeting_id)
       expect(created_issue).to include(
         {
           id: a_kind_of(Integer),

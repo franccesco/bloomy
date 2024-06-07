@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'json'
+require "json"
 
 # Class to handle all the operations related to measurables
 class Measurable
@@ -10,25 +10,25 @@ class Measurable
   end
 
   def current_week
-    response = @conn.get('weeks/current').body
+    response = @conn.get("weeks/current").body
     {
-      id: response['Id'],
-      week_number: response['ForWeekNumber'],
-      week_start: response['LocalDate']['Date'],
-      week_end: response['ForWeek']
+      id: response["Id"],
+      week_number: response["ForWeekNumber"],
+      week_start: response["LocalDate"]["Date"],
+      week_end: response["ForWeek"]
     }
   end
 
   def scorecard(current_week_only: true, show_empty: true)
-    response = @conn.get('scorecard/user/mine').body
-    scorecards = response['Scores'].map do |scorecard|
+    response = @conn.get("scorecard/user/mine").body
+    scorecards = response["Scores"].map do |scorecard|
       {
-        id: scorecard['Id'],
-        title: scorecard['MeasurableName'],
-        target: scorecard['Target'],
-        value: scorecard['Measured'],
-        updated_at: scorecard['DateEntered'],
-        week_number: scorecard['ForWeek']
+        id: scorecard["Id"],
+        title: scorecard["MeasurableName"],
+        target: scorecard["Target"],
+        value: scorecard["Measured"],
+        updated_at: scorecard["DateEntered"],
+        week_number: scorecard["ForWeek"]
       }
     end
 
@@ -43,7 +43,7 @@ class Measurable
   end
 
   def update(scorecard_id, measured)
-    response = @conn.put("scores/#{scorecard_id}", { value: measured }.to_json).status
+    response = @conn.put("scores/#{scorecard_id}", {value: measured}.to_json).status
     response == 200
   end
 end
