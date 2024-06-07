@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-RSpec.describe 'Todo Operations' do
+RSpec.describe "Todo Operations" do
   let(:client) { Bloomy::Client.new }
   let(:user_id) { client.user.default_user_id }
 
-  context 'when interacting with todos API' do
-    it 'returns user pending todos' do
+  context "when interacting with todos API" do
+    it "returns user pending todos" do
       todos = client.todo.list(user_id: user_id)
       expect(todos).to include(
         {

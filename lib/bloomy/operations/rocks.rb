@@ -10,26 +10,26 @@ class Rock
   def list(user_id: @user_id, archived: false)
     active_rocks = @conn.get("rocks/user/#{user_id}").body.map do |rock|
       {
-        id: rock['Id'],
-        title: rock['Name'],
-        created_at: rock['CreateTime'],
-        due_date: rock['DueDate'],
-        status: rock['Complete'] ? 'Completed' : 'Incomplete'
+        id: rock["Id"],
+        title: rock["Name"],
+        created_at: rock["CreateTime"],
+        due_date: rock["DueDate"],
+        status: rock["Complete"] ? "Completed" : "Incomplete"
       }
     end
 
-    archived ? { active: active_rocks, archived: archived(user_id: @user_id) } : active_rocks
+    archived ? {active: active_rocks, archived: archived(user_id: @user_id)} : active_rocks
   end
 
   def archived(user_id: @user_id)
     response = @conn.get("archivedrocks/user/#{user_id}").body
     response.map do |rock|
       {
-        id: rock['Id'],
-        title: rock['Name'],
-        created_at: rock['CreateTime'],
-        due_date: rock['DueDate'],
-        status: rock['Complete'] ? 'Completed' : 'Incomplete'
+        id: rock["Id"],
+        title: rock["Name"],
+        created_at: rock["CreateTime"],
+        due_date: rock["DueDate"],
+        status: rock["Complete"] ? "Completed" : "Incomplete"
       }
     end
   end

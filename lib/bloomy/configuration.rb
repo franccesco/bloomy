@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'fileutils'
-require 'faraday'
-require 'yaml'
+require "fileutils"
+require "faraday"
+require "yaml"
 
 module Bloomy
   # The Configuration class is responsible for managing the authentication
@@ -10,7 +10,7 @@ module Bloomy
     attr_accessor :api_key
 
     def initialize
-      @api_key = ENV['API_KEY'] || load_api_key
+      @api_key = ENV["API_KEY"] || load_api_key
     end
 
     def configure_api_key(username, password, store_key: false)
@@ -23,17 +23,17 @@ module Bloomy
     private
 
     def fetch_api_key(username, password)
-      conn = Faraday.new(url: 'https://app.bloomgrowth.com')
-      response = conn.post('/Token', "grant_type=password&userName=#{username}&password=#{password}",
-                           { 'Content-Type' => 'application/x-www-form-urlencoded' })
-      JSON.parse(response.body)['access_token']
+      conn = Faraday.new(url: "https://app.bloomgrowth.com")
+      response = conn.post("/Token", "grant_type=password&userName=#{username}&password=#{password}",
+        {"Content-Type" => "application/x-www-form-urlencoded"})
+      JSON.parse(response.body)["access_token"]
     end
 
     def store_api_key
-      raise 'API key is nil' if @api_key.nil?
+      raise "API key is nil" if @api_key.nil?
 
       FileUtils.mkdir_p(config_dir)
-      File.write(config_file, { version: 1, api_key: @api_key }.to_yaml)
+      File.write(config_file, {version: 1, api_key: @api_key}.to_yaml)
     end
 
     def load_api_key
@@ -43,11 +43,11 @@ module Bloomy
     end
 
     def config_dir
-      File.expand_path('~/.bloomy')
+      File.expand_path("~/.bloomy")
     end
 
     def config_file
-      File.join(config_dir, 'config.yaml')
+      File.join(config_dir, "config.yaml")
     end
   end
 end

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-RSpec.describe 'Measurable Operations' do
+RSpec.describe "Measurable Operations" do
   let(:client) { Bloomy::Client.new }
 
-  context 'when interacting with measurables API', :vcr do
-    it 'returns the current week via API', :vcr do
+  context "when interacting with measurables API", :vcr do
+    it "returns the current week via API", :vcr do
       current_week = client.measurable.current_week
       expect(current_week).to include(
         {
@@ -16,7 +16,7 @@ RSpec.describe 'Measurable Operations' do
       )
     end
 
-    it 'returns my current scorecard', :vcr do
+    it "returns my current scorecard", :vcr do
       client.measurable.current_week
       scorecards = client.measurable.scorecard
       expect(scorecards).to include(
