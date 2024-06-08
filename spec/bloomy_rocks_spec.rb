@@ -18,15 +18,12 @@ RSpec.describe "Rock Operations" do
       )
     end
 
-    it "returns user archived rocks" do
-      archived_rocks = client.rock.archived(user_id: user_id)
-      expect(archived_rocks).to include(
+    it "returns user active & archived rocks" do
+      rocks = client.rock.list(user_id: user_id, archived: true)
+      expect(rocks).to include(
         {
-          id: a_kind_of(Integer),
-          title: a_kind_of(String),
-          created_at: a_kind_of(String),
-          due_date: a_kind_of(String),
-          status: eq("Completed").or(eq("Incomplete"))
+          active: a_kind_of(Array),
+          archived: a_kind_of(Array)
         }
       )
     end

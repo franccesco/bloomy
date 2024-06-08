@@ -18,10 +18,12 @@ class Rock
       }
     end
 
-    archived ? {active: active_rocks, archived: archived(user_id: @user_id)} : active_rocks
+    archived ? {active: active_rocks, archived: get_archived_rocks(user_id: @user_id)} : active_rocks
   end
 
-  def archived(user_id: @user_id)
+  private
+
+  def get_archived_rocks(user_id: @user_id)
     response = @conn.get("archivedrocks/user/#{user_id}").body
     response.map do |rock|
       {
@@ -29,7 +31,7 @@ class Rock
         title: rock["Name"],
         created_at: rock["CreateTime"],
         due_date: rock["DueDate"],
-        status: rock["Complete"] ? "Completed" : "Incomplete"
+        status: rock["Complete"] ? "Complete" : "Incomplete"
       }
     end
   end
