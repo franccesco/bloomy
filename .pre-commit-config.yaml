@@ -13,7 +13,7 @@ repos:
       - id: standardrb
         name: standardrb
         description: Enforce the community Ruby Style Guide with standardrb
-        entry: bundle exec standardrb
+        entry: standardrb
         language: ruby
         types: ["ruby"]
         args: ["--fix"]
