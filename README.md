@@ -1,32 +1,125 @@
 # Bloomy
-[![Ruby](https://github.com/franccesco/bloomy/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/franccesco/bloomy/actions/workflows/main.yml)
 
-TODO: Delete this and the text below, and describe your gem
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/bloomy`. To experiment with that code, run `bin/console` for an interactive prompt.
+The Bloomy is a Ruby library for interacting with the Bloom Growth API. It provides convenient methods for getting user details, todos, rocks, meetings, measurables, and issues.
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+Add this line to your application's Gemfile:
 
-Install the gem and add to the application's Gemfile by executing:
+```ruby
+gem 'bloomy'
+```
 
-    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
+And then execute:
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+```sh
+bundle install
+```
 
-    $ gem install UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
+Or install it yourself as:
 
-## Usage
+```sh
+gem install bloomy
+```
 
-TODO: Write usage instructions here
+## Configuration
 
-## Development
+### Initialize the Configuration
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+First, you need to initialize the configuration and set up the API key.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```ruby
+require 'bloomy'
 
-## Contributing
+config = Bloomy::Configuration.new
+```
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/bloomy.
+### Configure the API Key
+
+You can configure the API key using your username and password. Optionally, you can store the API key locally for future use.
+
+```ruby
+config.configure_api_key("your_username", "your_password", store_key: true)
+```
+
+## Client Initialization
+
+Once the configuration is set up, you can initialize the client. The client provides access to various features such as managing users, todos, rocks, meetings, measurables, and issues.
+
+```ruby
+client = Bloomy::Client.new
+```
+
+## Using Client Features
+
+### User Management
+
+To interact with user-related features:
+
+```ruby
+# Fetch current user details
+current_user_details = client.user.details
+
+# Search for users
+search_results = client.user.search("John Doe")
+```
+
+### Meeting Management
+
+To interact with meeting-related features:
+
+```ruby
+# List all meetings for the current user
+meetings = client.meeting.list
+
+# Get details of a specific meeting
+meeting_details = client.meeting.details(meeting_id)
+```
+
+### Todo Management
+
+To interact with todo-related features:
+
+```ruby
+# List all todos for the current user
+todos = client.todo.list
+
+# Create a new todo
+new_todo = client.todo.create(title: "New Task", meeting_id: 1, due_date: "2024-06-15")
+```
+
+### Rock Management
+
+To interact with rock-related features:
+
+```ruby
+# List all rocks for the current user
+rocks = client.rock.list
+
+# Create a new rock
+new_rock = client.rock.create(title: "New Rock", meeting_id: 1)
+```
+
+### Measurable Management
+
+To interact with measurable-related features:
+
+```ruby
+# Get current week details
+current_week = client.measurable.current_week
+
+# Get the scorecard for the user
+scorecard = client.measurable.scorecard
+```
+
+### Issue Management
+
+To interact with issue-related features:
+
+```ruby
+# Get details of a specific issue
+issue_details = client.issue.details(issue_id)
+
+# Create a new issue
+new_issue = client.issue.create("New Issue", meeting_id)
+```

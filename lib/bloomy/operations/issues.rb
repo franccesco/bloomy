@@ -4,11 +4,22 @@ require "json"
 
 # Class to handle all the operations related to issues
 class Issue
+  # Initializes a new Issue instance
+  #
+  # @param conn [Object] the connection object to interact with the API
+  # @param user_id [Integer] the ID of the user
   def initialize(conn, user_id)
     @conn = conn
     @user_id = user_id
   end
 
+  # Retrieves details of a specific issue
+  #
+  # @param issue_id [Integer] the ID of the issue
+  # @return [Hash] a hash containing issue details
+  # @example
+  #   issue.details(123)
+  #   #=> { id: 123, title: "Issue Title", notes_url: "http://details.url", ... }
   def details(issue_id)
     response = @conn.get("issues/#{issue_id}").body
     {
@@ -28,6 +39,13 @@ class Issue
     }
   end
 
+  # Lists issues for a specific user
+  #
+  # @param user_id [Integer] the ID of the user (default is the initialized user ID)
+  # @return [Array<Hash>] an array of hashes containing issues details
+  # @example
+  #   issue.list
+  #   #=> [{ id: 123, title: "Issue Title", notes_url: "http://details.url", ... }, ...]
   def list(user_id: @user_id)
     response = @conn.get("issues/users/#{user_id}").body
     response.map do |issue|
@@ -42,11 +60,26 @@ class Issue
     end
   end
 
+  # Marks an issue as complete
+  #
+  # @param issue_id [Integer] the ID of the issue
+  # @return [Boolean] true if the operation was successful, false otherwise
+  # @example
+  #   issue.complete(123)
+  #   #=> true
   def complete(issue_id)
     response = @conn.post("issues/#{issue_id}/complete", {complete: true}.to_json).status
     response == 200
   end
 
+  # Creates a new issue
+  #
+  # @param issue_title [String] the title of the new issue
+  # @param meeting_id [Integer] the ID of the meeting associated with the issue
+  # @return [Hash] a hash containing the new issue's ID and title
+  # @example
+  #   issue.create("New Issue", 456)
+  #   #=> { id: 789, title: "New Issue" }
   def create(issue_title, meeting_id)
     response = @conn.post("issues/create", {title: issue_title, meetingid: meeting_id}.to_json)
     {
