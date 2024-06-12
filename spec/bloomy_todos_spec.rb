@@ -12,7 +12,9 @@ RSpec.describe "Todo Operations" do
           id: a_kind_of(Integer),
           title: a_kind_of(String),
           due_date: a_kind_of(String),
-          created_at: a_kind_of(String)
+          created_at: a_kind_of(String),
+          completed_at: a_kind_of(String),
+          status: a_kind_of(String)
         }
       )
     end
