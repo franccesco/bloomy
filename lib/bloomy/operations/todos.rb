@@ -14,8 +14,29 @@ class Todo
         id: todo["Id"],
         title: todo["Name"],
         due_date: todo["DueDate"],
-        created_at: todo["CreateTime"]
+        created_at: todo["CreateTime"],
+        completed_at: todo["CompleteTime"],
+        status: todo["Complete"] ? "Complete" : "Incomplete"
       }
     end
+  end
+
+  def create(title:, meeting_id:, due_date: nil, user_id: @user_id)
+    payload = {title: title, accountableUserId: user_id}
+    payload[:dueDate] = due_date if due_date
+    response = @conn.post("/api/v1/L10/#{meeting_id}/todos", payload.to_json).body
+
+    {
+      id: response["Id"],
+      title: response["Name"],
+      meeting_name: response["Origin"],
+      meeting_id: response["OriginId"],
+      due_date: response["DueDate"]
+    }
+  end
+
+  def complete(todo_id)
+    response = @conn.post("/api/v1/todo/#{todo_id}/complete?status=true")
+    {status: response.status}
   end
 end
