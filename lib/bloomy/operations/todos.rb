@@ -2,11 +2,22 @@
 
 # Class to handle all the operations related to todos
 class Todo
+  # Initializes a new Todo instance
+  #
+  # @param conn [Object] the connection object to interact with the API
+  # @param user_id [Integer] the ID of the user
   def initialize(conn, user_id)
     @conn = conn
     @user_id = user_id
   end
 
+  # Lists all todos for a specific user
+  #
+  # @param user_id [Integer] the ID of the user (default is the initialized user ID)
+  # @return [Array<Hash>] an array of hashes containing todo details
+  # @example
+  #   client.todo.list
+  #   #=> [{ id: 1, title: "Finish report", due_date: "2024-06-10", ... }, ...]
   def list(user_id: @user_id)
     response = @conn.get("todo/user/#{user_id}").body
     response.map do |todo|
@@ -21,6 +32,16 @@ class Todo
     end
   end
 
+  # Creates a new todo
+  #
+  # @param title [String] the title of the new todo
+  # @param meeting_id [Integer] the ID of the meeting associated with the todo
+  # @param due_date [String, nil] the due date of the todo (optional)
+  # @param user_id [Integer] the ID of the user responsible for the todo (default: initialized user ID)
+  # @return [Hash] a hash containing the new todo's details
+  # @example
+  #   client.todo.create(title: "New Todo", meeting_id: 1, due_date: "2024-06-15")
+  #   #=> { id: 1, title: "New Todo", meeting_name: "Team Meeting", ... }
   def create(title:, meeting_id:, due_date: nil, user_id: @user_id)
     payload = {title: title, accountableUserId: user_id}
     payload[:dueDate] = due_date if due_date
@@ -35,6 +56,13 @@ class Todo
     }
   end
 
+  # Marks a todo as complete
+  #
+  # @param todo_id [Integer] the ID of the todo to complete
+  # @return [Hash] a hash containing the status of the complete operation
+  # @example
+  #   todo.complete(1)
+  #   #=> { status: 200 }
   def complete(todo_id)
     response = @conn.post("/api/v1/todo/#{todo_id}/complete?status=true")
     {status: response.status}
