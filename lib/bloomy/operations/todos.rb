@@ -18,4 +18,18 @@ class Todo
       }
     end
   end
+
+  def create(title:, meeting_id:, due_date: nil, user_id: @user_id)
+    payload = {title: title, accountableUserId: user_id}
+    payload[:dueDate] = due_date if due_date
+    response = @conn.post("/api/v1/L10/#{meeting_id}/todos", payload.to_json).body
+
+    {
+      id: response["Id"],
+      title: response["Name"],
+      meeting_name: response["Origin"],
+      meeting_id: response["OriginId"],
+      due_date: response["DueDate"]
+    }
+  end
 end
