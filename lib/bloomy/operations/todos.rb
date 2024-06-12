@@ -14,7 +14,9 @@ class Todo
         id: todo["Id"],
         title: todo["Name"],
         due_date: todo["DueDate"],
-        created_at: todo["CreateTime"]
+        created_at: todo["CreateTime"],
+        completed_at: todo["CompleteTime"],
+        status: todo["Complete"] ? "Complete" : "Incomplete"
       }
     end
   end
