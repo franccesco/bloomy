@@ -10,9 +10,17 @@ require_relative "operations/issues"
 
 module Bloomy
   # The Client class is the main entry point for interacting with the Bloomy API.
+  # It provides methods for managing users, todos, rocks, meetings, measurables, and issues.
   class Client
     attr_reader :configuration, :user, :todo, :rock, :meeting, :measurable, :issue
 
+    # Initializes a new Client instance
+    #
+    # @example
+    #   client = Bloomy::Client.new
+    #   client.meetings.list
+    #   client.user.details
+    #   client.meeting.delete(id)
     def initialize
       @configuration = Configuration.new
       @base_url = "https://app.bloomgrowth.com/api/v1"
