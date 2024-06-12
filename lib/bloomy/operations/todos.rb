@@ -34,4 +34,9 @@ class Todo
       due_date: response["DueDate"]
     }
   end
+
+  def complete(todo_id)
+    response = @conn.post("/api/v1/todo/#{todo_id}/complete?status=true")
+    {status: response.status}
+  end
 end
