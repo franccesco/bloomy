@@ -33,7 +33,6 @@ Gem::Specification.new do |spec|
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"
   spec.add_dependency "faraday"
-  spec.add_dependency "thor"
   spec.add_development_dependency "rspec"
 
   # For more information and examples about making a new gem, check out our
