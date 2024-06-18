@@ -1,14 +1,14 @@
 PATH
   remote: .
   specs:
-    bloomy (0.1.0)
+    bloomy (0.1.1)
       faraday (~> 2.9)
 
 GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.5.1)
-    faraday (2.9.1)
+    faraday (2.9.2)
       faraday-net_http (>= 2.0, < 3.2)
     faraday-net_http (3.1.0)
       net-http
