@@ -21,15 +21,16 @@ module Bloomy
     #   client.meetings.list
     #   client.user.details
     #   client.meeting.delete(id)
-    def initialize
-      @configuration = Configuration.new
+    def initialize(api_key = nil)
+      @configuration = Configuration.new unless api_key
+      @api_key = api_key || @configuration.api_key
       @base_url = "https://app.bloomgrowth.com/api/v1"
       @conn = Faraday.new(url: @base_url) do |faraday|
         faraday.response :json
         faraday.adapter Faraday.default_adapter
         faraday.headers["Accept"] = "*/*"
         faraday.headers["Content-Type"] = "application/json"
-        faraday.headers["Authorization"] = "Bearer #{configuration.api_key}"
+        faraday.headers["Authorization"] = "Bearer #{@api_key}"
       end
       @user = User.new(@conn)
       @user_id = @user.default_user_id
