@@ -42,6 +42,8 @@ You can configure the API key using your username and password. Optionally, you 
 config.configure_api_key("your_username", "your_password", store_key: true)
 ```
 
+Alternatively you can set an `API_KEY` environment variable and it will be loaded automatically for you once you initialize a client.
+
 ## Client Initialization
 
 Once the configuration is set up, you can initialize the client. The client provides access to various features such as managing users, todos, rocks, meetings, measurables, and issues.
