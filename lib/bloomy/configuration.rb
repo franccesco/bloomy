@@ -11,10 +11,11 @@ module Bloomy
 
     # Initializes a new Configuration instance
     #
+    # @param [String, nil] optional_parameter Pass an optional API key
     # @example
-    #   config = Bloomy::Configuration.new
-    def initialize
-      @api_key = ENV["API_KEY"] || load_api_key
+    #   config = Bloomy::Configuration.new(api_key)
+    def initialize(api_key = nil)
+      @api_key = api_key || ENV["API_KEY"] || load_api_key
     end
 
     # Configures the API key using the provided username and password
@@ -30,8 +31,6 @@ module Bloomy
     #   config.api_key
     #   # => 'xxxx...'
     def configure_api_key(username, password, store_key: false)
-      return unless @api_key.nil?
-
       @api_key = fetch_api_key(username, password)
       store_api_key if store_key
     end
