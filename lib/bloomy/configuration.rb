@@ -15,7 +15,7 @@ module Bloomy
     # @example
     #   config = Bloomy::Configuration.new(api_key)
     def initialize(api_key = nil)
-      @api_key = api_key || ENV["API_KEY"] || load_api_key
+      @api_key = api_key || ENV["BG_API_KEY"] || load_api_key
     end
 
     # Configures the API key using the provided username and password
