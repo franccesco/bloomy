@@ -34,7 +34,8 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          bundler: true
+          ruby-version: "3.1"
+          bundler-cache: true
       - name: Generate YARD documentation
         run: |
           yard doc
