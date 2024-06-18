@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     bloomy (0.1.0)
-      faraday
+      faraday (~> 2.9)
 
 GEM
   remote: https://rubygems.org/
@@ -40,7 +40,7 @@ PLATFORMS
 DEPENDENCIES
   bloomy!
   rake (~> 13.0)
-  rspec
+  rspec (~> 3.13)
   webrick (~> 1.8)
   yard (~> 0.9.36)
 
