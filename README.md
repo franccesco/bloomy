@@ -36,20 +36,23 @@ config = Bloomy::Configuration.new
 
 ### Configure the API Key
 
-You can configure the API key using your username and password. Optionally, you can store the API key locally for future use.
+You can configure the API key using your username and password. Optionally, you can store the API key locally under `~/.bloomy/config.yaml` for future use.
 
 ```ruby
 config.configure_api_key("your_username", "your_password", store_key: true)
 ```
 
-Alternatively you can set an `API_KEY` environment variable and it will be loaded automatically for you once you initialize a client.
+You can also set an `BG_API_KEY` environment variable and it will be loaded automatically for you once you initialize a client. A configuration is useful if you plan to use a fixed API key for your operations. However, you can also pass an API key when initializing a client without doing any configuration.
 
 ## Client Initialization
 
 Once the configuration is set up, you can initialize the client. The client provides access to various features such as managing users, todos, rocks, meetings, measurables, and issues.
 
+> [!NOTE]
+> Passing an API key is entirely optional and only useful if you plan to use different API keys to manage different organizations. This will bypass the regular configuration process.
+
 ```ruby
-client = Bloomy::Client.new
+client = Bloomy::Client.new(api_key: "abc...")
 ```
 
 ## Using Client Features
