@@ -38,7 +38,7 @@ jobs:
           bundler-cache: true
       - name: Generate YARD documentation
         run: |
-          yard doc
+          bundle exec yard doc
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
