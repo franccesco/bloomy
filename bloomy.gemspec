@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Manage your Bloom Growth account from the command line."
   spec.homepage = "https://github.com/franccesco/bloomy"
   spec.required_ruby_version = ">= 2.6.0"
-  spec.licenses = ["MIT"]
+  spec.licenses = ["Apache-2.0"]
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
