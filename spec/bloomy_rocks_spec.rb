@@ -5,7 +5,8 @@ RSpec.describe "Rock Operations" do
     @client = Bloomy::Client.new
     @user_id = @client.user.default_user_id
     @meeting_details = @client.meeting.create(title: "Test Meeting")
-    @created_rock = @client.rock.create(title: "Test Rock", user_id: @user_id, meeting_id: @meeting_details[:meeting_id])
+    @created_rock = @client.rock.create(title: "Test Rock", user_id: @user_id,
+      meeting_id: @meeting_details[:meeting_id])
   end
 
   after(:all) do
