@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "date"
+
 # Class to handle all the operations related to todos
 class Todo
   # Initializes a new Todo instance
@@ -66,5 +68,32 @@ class Todo
   def complete(todo_id)
     response = @conn.post("/api/v1/todo/#{todo_id}/complete?status=true")
     {status: response.status}
+  end
+
+  # Updates an existing todo
+  #
+  # @param todo_id [Integer] the ID of the todo to update
+  # @param title [String, nil] the new title of the todo (optional)
+  # @param due_date [String, nil] the new due date of the todo (optional)
+  # @return [Hash] a hash containing the updated todo's details
+  # @example
+  #   todo.update(1, title: "Updated Todo", due_date: "2024-11-01T01:41:41.528Z")
+  #   #=> { id: 1, title: "Updated Todo", due_date: "2024-11-01T01:41:41.528Z", ... }
+  def update(todo_id:, title: nil, due_date: nil)
+    payload = {}
+    payload[:title] = title if title
+    payload[:dueDate] = due_date if due_date
+
+    raise ArgumentError, "At least one field must be provided" if payload.empty?
+
+    response = @conn.put("/api/v1/todo/#{todo_id}", payload.to_json)
+    raise "Failed to update todo. Status: #{response.status}" unless response.status == 200
+
+    {
+      id: todo_id,
+      title: title,
+      due_date: due_date,
+      updated_at: DateTime.now.to_s
+    }
   end
 end

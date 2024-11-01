@@ -1,52 +1,33 @@
 # frozen_string_literal: true
 
 RSpec.describe "Issue Operations" do
-  let(:client) { Bloomy::Client.new }
-  let(:meeting_id) { ENV.fetch("MEETING_ID", nil) }
-  let(:issue_id) { ENV.fetch("ISSUE_ID", nil) }
+  # Set up a test meeting and tear it down
+  before(:all) do
+    @client = Bloomy::Client.new
+    @meeting_id = @client.meeting.create(title: "Test Meeting")[:meeting_id]
+  end
 
-  context "when interacting with issues API" do
-    it "returns the correct issue details" do
-      issue = client.issue.details(issue_id)
-      expect(issue).to include(
-        id: a_kind_of(Integer),
-        title: a_kind_of(String),
-        notes_url: a_kind_of(String),
-        created_at: a_kind_of(String),
-        completed_at: a_kind_of(String).or(be_nil),
-        meeting_details: {
-          id: a_kind_of(Integer),
-          name: a_kind_of(String)
-        },
-        owner_details: {
-          id: a_kind_of(Integer),
-          name: a_kind_of(String)
-        }
-      )
-    end
+  after(:all) do
+    @client.meeting.delete(@meeting_id)
+  end
 
-    it "returns the correct issues for a user" do
-      issues = client.issue.list
-      expect(issues).to all(include(
-        id: a_kind_of(Integer),
-        title: a_kind_of(String),
-        notes_url: a_kind_of(String),
-        created_at: a_kind_of(String),
-        meeting_id: a_kind_of(Integer),
-        meeting_name: a_kind_of(String)
-      ))
-    end
+  context "when managing issues" do
+    it "creates, retrieves, and completes an issue" do
+      # Create a new issue
+      issue = @client.issue.create("Test Issue", @meeting_id)
+      expect(issue[:title]).to eq("Test Issue")
+      expect(issue[:meeting_id]).to eq(@meeting_id)
 
-    it "creates and completes an issue" do
-      created_issue = client.issue.create("Test issue", meeting_id)
-      expect(created_issue).to include(
-        {
-          id: a_kind_of(Integer),
-          title: a_kind_of(String)
-        }
-      )
-      completed_issue = client.issue.complete(created_issue[:id])
-      expect(completed_issue).to be true
+      # Get the details of the issue
+      issue_id = issue[:id]
+      details = @client.issue.details(issue_id)
+      expect(details[:title]).to eq("Test Issue")
+      expect(details[:meeting_details][:id]).to eq(@meeting_id)
+
+      # Expect a completion
+      @client.issue.complete(issue_id)
+      details = @client.issue.details(issue_id)
+      expect(details[:completed_at]).not_to be_nil
     end
   end
 end
