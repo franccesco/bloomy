@@ -84,7 +84,8 @@ class Issue
     response = @conn.post("issues/create", {title: issue_title, meetingid: meeting_id}.to_json)
     {
       id: response.body["Id"],
-      title: response.body["Name"]
+      title: response.body["Name"],
+      meeting_id: response.body["OriginId"]
     }
   end
 end
