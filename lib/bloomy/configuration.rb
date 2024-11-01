@@ -11,7 +11,7 @@ module Bloomy
 
     # Initializes a new Configuration instance
     #
-    # @param [String, nil] optional_parameter Pass an optional API key
+    # @param [String, nil] api_key Pass an optional API key
     # @example
     #   config = Bloomy::Configuration.new(api_key)
     def initialize(api_key = nil)
