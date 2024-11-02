@@ -5,6 +5,8 @@ RSpec.describe "Issue Operations" do
   before(:all) do
     @client = Bloomy::Client.new
     @meeting_id = @client.meeting.create(title: "Test Meeting")[:meeting_id]
+    @issue = @client.issue.create(meeting_id: @meeting_id, title: "Test Issue")
+    @issue_id = @issue[:id]
   end
 
   after(:all) do
@@ -12,21 +14,20 @@ RSpec.describe "Issue Operations" do
   end
 
   context "when managing issues" do
-    it "creates, retrieves, and completes an issue" do
-      # Create a new issue
-      issue = @client.issue.create("Test Issue", @meeting_id)
-      expect(issue[:title]).to eq("Test Issue")
-      expect(issue[:meeting_id]).to eq(@meeting_id)
+    it "creates an issue" do
+      expect(@issue[:title]).to eq("Test Issue")
+      expect(@issue[:meeting_id]).to eq(@meeting_id)
+    end
 
-      # Get the details of the issue
-      issue_id = issue[:id]
-      details = @client.issue.details(issue_id)
+    it "retrieves an issue" do
+      details = @client.issue.details(@issue_id)
       expect(details[:title]).to eq("Test Issue")
       expect(details[:meeting_details][:id]).to eq(@meeting_id)
+    end
 
-      # Expect a completion
-      @client.issue.complete(issue_id)
-      details = @client.issue.details(issue_id)
+    it "completes an issue" do
+      @client.issue.complete(@issue_id)
+      details = @client.issue.details(@issue_id)
       expect(details[:completed_at]).not_to be_nil
     end
   end
