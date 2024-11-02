@@ -80,12 +80,15 @@ class Issue
   # @example
   #   issue.create("New Issue", 456)
   #   #=> { id: 789, title: "New Issue" }
-  def create(issue_title, meeting_id)
-    response = @conn.post("issues/create", {title: issue_title, meetingid: meeting_id}.to_json)
+  def create(meeting_id:, title:, user_id: @user_id, notes: nil)
+    response = @conn.post("issues/create", {title: title, meetingid: meeting_id, ownerid: user_id, notes: notes}.to_json)
     {
       id: response.body["Id"],
+      meeting_id: response.body["OriginId"],
+      meeting_title: response.body["Origin"],
       title: response.body["Name"],
-      meeting_id: response.body["OriginId"]
+      user_id: response.body["Owner"]["Id"],
+      details_url: response.body["DetailsUrl"]
     }
   end
 end
