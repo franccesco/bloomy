@@ -5,15 +5,15 @@ require_relative "operations/users"
 require_relative "operations/todos"
 require_relative "operations/rocks"
 require_relative "operations/meetings"
-require_relative "operations/measurables"
+require_relative "operations/scorecard"
 require_relative "operations/issues"
 require_relative "operations/headlines"
 
 module Bloomy
   # The Client class is the main entry point for interacting with the Bloomy API.
-  # It provides methods for managing users, todos, rocks, meetings, measurables, and issues.
+  # It provides methods for managing Bloom Growth features.
   class Client
-    attr_reader :configuration, :user, :todo, :rock, :meeting, :measurable, :issue, :headline
+    attr_reader :configuration, :user, :todo, :rock, :meeting, :scorecard, :issue, :headline
 
     # Initializes a new Client instance
     #
@@ -38,7 +38,7 @@ module Bloomy
       @todo = Todo.new(@conn, @user_id)
       @rock = Rock.new(@conn, @user_id)
       @meeting = Meeting.new(@conn, @user_id)
-      @measurable = Measurable.new(@conn, @user_id)
+      @scorecard = Scorecard.new(@conn, @user_id)
       @issue = Issue.new(@conn, @user_id)
       @headline = Headline.new(@conn, @user_id)
     end
