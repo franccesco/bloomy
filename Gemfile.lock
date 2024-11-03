@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bloomy (0.2.1)
+    bloomy (0.3.0)
       faraday (~> 2.9)
 
 GEM

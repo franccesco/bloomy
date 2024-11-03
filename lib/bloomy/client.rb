@@ -3,7 +3,7 @@
 require "faraday"
 require_relative "operations/users"
 require_relative "operations/todos"
-require_relative "operations/rocks"
+require_relative "operations/goals"
 require_relative "operations/meetings"
 require_relative "operations/scorecard"
 require_relative "operations/issues"
@@ -13,7 +13,7 @@ module Bloomy
   # The Client class is the main entry point for interacting with the Bloomy API.
   # It provides methods for managing Bloom Growth features.
   class Client
-    attr_reader :configuration, :user, :todo, :rock, :meeting, :scorecard, :issue, :headline
+    attr_reader :configuration, :user, :todo, :goal, :meeting, :scorecard, :issue, :headline
 
     # Initializes a new Client instance
     #
@@ -36,7 +36,7 @@ module Bloomy
       @user = User.new(@conn)
       @user_id = @user.default_user_id
       @todo = Todo.new(@conn, @user_id)
-      @rock = Rock.new(@conn, @user_id)
+      @goal = Goal.new(@conn, @user_id)
       @meeting = Meeting.new(@conn, @user_id)
       @scorecard = Scorecard.new(@conn, @user_id)
       @issue = Issue.new(@conn, @user_id)
