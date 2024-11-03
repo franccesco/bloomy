@@ -74,7 +74,7 @@ class Issue
 
   # Creates a new issue
   #
-  # @param issue_title [String] the title of the new issue
+  # @param title [String] the title of the new issue
   # @param meeting_id [Integer] the ID of the meeting associated with the issue
   # @return [Hash] a hash containing the new issue's ID and title
   # @example
