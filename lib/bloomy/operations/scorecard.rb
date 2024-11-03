@@ -83,16 +83,24 @@ class Scorecard
     scorecards
   end
 
-  # Updates a scorecard with a new measured value
+  # Updates the score for a measurable item for a specific week.
   #
-  # @param scorecard_id [Integer] the ID of the scorecard to update
-  # @param measured [Numeric] the new measured value
-  # @return [Boolean] true if the operation was successful, false otherwise
+  # @param measurable_id [Integer] the ID of the measurable item.
+  # @param score [Numeric] the score to be assigned to the measurable item.
+  # @param week_offset [Integer] the number of weeks to offset from the current week (default is 0).
+  # @return [Boolean] true if the score was successfully updated, false otherwise.
   # @example
-  #   client.scorecard.update(1, 85)
-  #   #=> true
-  def update(scorecard_id, measured)
-    response = @conn.put("scores/#{scorecard_id}", {value: measured}.to_json).status
-    response == 200
+  #  client.scorecard.score(measurable_id: 123, score: 5)
+  #  #=> true
+  # @note
+  #  The `week_offset` parameter is useful when updating scores for previous weeks.
+  #  For example, to update the score for the previous week, you can set `week_offset` to 1.
+  #  To update a future week's score, you can set `week_offset` to a negative value.
+  def score(measurable_id:, score:, week_offset: 0)
+    week_data = current_week
+    week_id = week_data[:week_number] - week_offset
+
+    response = @conn.put("measurables/#{measurable_id}/week/#{week_id}", {value: score}.to_json)
+    response.success?
   end
 end
