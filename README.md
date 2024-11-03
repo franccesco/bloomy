@@ -1,5 +1,6 @@
 # Bloomy
-[![RSpec Tests](https://github.com/franccesco/bloomy/actions/workflows/main.yml/badge.svg)](https://github.com/franccesco/bloomy/actions/workflows/main.yml) [![Deploy Docs](https://github.com/franccesco/bloomy/actions/workflows/deploy_docs.yml/badge.svg)](https://github.com/franccesco/bloomy/actions/workflows/deploy_docs.yml)
+
+[![Gem Version](https://badge.fury.io/rb/bloomy.svg)](https://badge.fury.io/rb/bloomy)[![RSpec Tests](https://github.com/franccesco/bloomy/actions/workflows/main.yml/badge.svg)](https://github.com/franccesco/bloomy/actions/workflows/main.yml) [![Deploy Docs](https://github.com/franccesco/bloomy/actions/workflows/deploy_docs.yml/badge.svg)](https://github.com/franccesco/bloomy/actions/workflows/deploy_docs.yml)
 
 Bloomy is a Ruby library for interacting with the Bloom Growth API. It provides convenient methods for getting user details, todos, rocks, meetings, measurables, and issues.
 
@@ -8,22 +9,18 @@ Bloomy is a Ruby library for interacting with the Bloom Growth API. It provides 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'bloomy'
+bundle add bloomy
 ```
 
-And then execute:
-
-```sh
-bundle install
-```
-
-Or install it yourself as:
+Or install it to your system:
 
 ```sh
 gem install bloomy
 ```
 
-## Configuration
+## Get Started
+
+You can find the [full docs here](https://franccesco.github.io/bloomy/) but here's a quick overview to get you started.
 
 ### Initialize the Configuration
 
@@ -106,16 +103,16 @@ rocks = client.rock.list
 new_rock = client.rock.create(title: "New Rock", meeting_id: 1)
 ```
 
-### Measurable Management
+### Scorecard Management
 
 To interact with measurable-related features:
 
 ```ruby
-# Get current week details
-current_week = client.measurable.current_week
+# Get user scorecard
+user_scorecard = client.scorecard.list(user_id: 1)
 
-# Get the scorecard for the user
-scorecard = client.measurable.scorecard
+# Get a meeting scorecard
+meeting_scorecard = client.scorecard.list(meeting_id: 1)
 ```
 
 ### Issue Management
