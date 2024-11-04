@@ -5,7 +5,6 @@ require "date"
 RSpec.describe "Todo Operations" do
   before(:all) do
     @client = Bloomy::Client.new
-    @user_id = @client.user.default_user_id
     @meeting_id = @client.meeting.create(title: "Test Meeting")[:meeting_id]
     @due_date_7days = (Date.today + 7).to_s
     @todo = @client.todo.create(title: "New Todo", meeting_id: @meeting_id)

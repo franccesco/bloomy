@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 require "date"
+require_relative "../utils/get_user_id"
 
 # Class to handle all the operations related to todos
 class Todo
+  include Bloomy::Utilities::UserIdUtility
+
   # Initializes a new Todo instance
   #
   # @param conn [Object] the connection object to interact with the API
-  # @param user_id [Integer] the ID of the user
-  def initialize(conn, user_id)
+  def initialize(conn)
     @conn = conn
-    @user_id = user_id
   end
 
   # Lists all todos for a specific user
@@ -20,7 +21,7 @@ class Todo
   # @example
   #   client.todo.list
   #   #=> [{ id: 1, title: "Finish report", due_date: "2024-06-10", ... }, ...]
-  def list(user_id: @user_id)
+  def list(user_id: self.user_id)
     response = @conn.get("todo/user/#{user_id}").body
     response.map do |todo|
       {
@@ -44,7 +45,7 @@ class Todo
   # @example
   #   client.todo.create(title: "New Todo", meeting_id: 1, due_date: "2024-06-15")
   #   #=> { id: 1, title: "New Todo", meeting_name: "Team Meeting", ... }
-  def create(title:, meeting_id:, due_date: nil, user_id: @user_id)
+  def create(title:, meeting_id:, due_date: nil, user_id: self.user_id)
     payload = {title: title, accountableUserId: user_id}
     payload[:dueDate] = due_date if due_date
     response = @conn.post("/api/v1/L10/#{meeting_id}/todos", payload.to_json).body

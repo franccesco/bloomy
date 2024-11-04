@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
+require "bloomy/utils/get_user_id"
+
 # Class to handle all the operations related to goals
 class Goal
+  include Bloomy::Utilities::UserIdUtility
   # Initializes a new Goal instance
   #
   # @param conn [Object] the connection object to interact with the API
-  # @param user_id [Integer] the ID of the user
-  def initialize(conn, user_id)
+  def initialize(conn)
     @conn = conn
-    @user_id = user_id
   end
 
   # Lists all goals for a specific user
@@ -19,7 +20,7 @@ class Goal
   # @example
   #  client.goal.list
   #   #=> [{ id: 1, title: "Complete project", created_at: "2024-06-10", ... }, ...]
-  def list(user_id: @user_id, archived: false)
+  def list(user_id = self.user_id, archived: false)
     active_goals = @conn.get("rocks/user/#{user_id}?include_origin=true").body.map do |goal|
       {
         id: goal["Id"],
@@ -32,7 +33,7 @@ class Goal
       }
     end
 
-    archived ? {active: active_goals, archived: get_archived_goals(user_id: @user_id)} : active_goals
+    archived ? {active: active_goals, archived: get_archived_goals(self.user_id)} : active_goals
   end
 
   # Creates a new goal
@@ -44,7 +45,7 @@ class Goal
   # @example
   #   client.goal.create(title: "New Goal", meeting_id: 1)
   #   #=> { goal_id: 1, title: "New Goal", meeting_id: 1, ... }
-  def create(title:, meeting_id:, user_id: @user_id)
+  def create(title:, meeting_id:, user_id: self.user_id)
     payload = {title: title, accountableUserId: user_id}.to_json
     response = @conn.post("/api/v1/L10/#{meeting_id}/rocks", payload).body
     {
@@ -79,7 +80,7 @@ class Goal
   # @example
   #   client.goal.update(goal_id: 1, title: "Updated Goal")
   #   #=> { status: 200 }
-  def update(goal_id:, title:, accountable_user: @user_id)
+  def update(goal_id:, title:, accountable_user: user_id)
     payload = {title: title, accountableUserId: accountable_user}.to_json
     response = @conn.put("/api/v1/rocks/#{goal_id}", payload)
     {status: response.status}
@@ -94,7 +95,7 @@ class Goal
   # @example
   #   goal.send(:get_archived_goals)
   #   #=> [{ id: 1, title: "Archived Goal", created_at: "2024-06-10", ... }, ...]
-  def get_archived_goals(user_id: @user_id)
+  def get_archived_goals(user_id = self.user_id)
     response = @conn.get("archivedrocks/user/#{user_id}").body
     response.map do |goal|
       {

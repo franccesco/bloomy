@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 require "json"
+require "bloomy/utils/get_user_id"
 
 # Class to handle all the operations related to issues
 class Issue
+  include Bloomy::Utilities::UserIdUtility
   # Initializes a new Issue instance
   #
   # @param conn [Object] the connection object to interact with the API
   # @param user_id [Integer] the ID of the user
-  def initialize(conn, user_id)
+  def initialize(conn)
     @conn = conn
-    @user_id = user_id
   end
 
   # Retrieves details of a specific issue
@@ -46,7 +47,7 @@ class Issue
   # @example
   #   issue.list
   #   #=> [{ id: 123, title: "Issue Title", notes_url: "http://details.url", ... }, ...]
-  def list(user_id: @user_id)
+  def list(user_id = self.user_id)
     response = @conn.get("issues/users/#{user_id}").body
     response.map do |issue|
       {
@@ -74,13 +75,15 @@ class Issue
 
   # Creates a new issue
   #
-  # @param title [String] the title of the new issue
   # @param meeting_id [Integer] the ID of the meeting associated with the issue
+  # @param title [String] the title of the new issue
+  # @param user_id [Integer] the ID of the user responsible for the issue (default: initialized user ID)
+  # @param notes [String, nil] the notes for the issue (optional)
   # @return [Hash] a hash containing the new issue's ID and title
   # @example
-  #   issue.create("New Issue", 456)
+  #   issue.create(meeting_id: 123, title: "New Issue")
   #   #=> { id: 789, title: "New Issue" }
-  def create(meeting_id:, title:, user_id: @user_id, notes: nil)
+  def create(meeting_id:, title:, user_id: self.user_id, notes: nil)
     response = @conn.post("issues/create", {title: title, meetingid: meeting_id, ownerid: user_id, notes: notes}.to_json)
     {
       id: response.body["Id"],

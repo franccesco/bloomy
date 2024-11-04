@@ -1,18 +1,19 @@
 # frozen_string_literal: true
 
 require "json"
+require "bloomy/utils/get_user_id"
 
 # Class to handle all the operations related to scorecards
 # @note
 #   This class is already initialized via the client and usable as `client.scorecard.method`
 class Scorecard
+  include Bloomy::Utilities::UserIdUtility
+
   # Initializes a new Scorecard instance
   #
   # @param conn [Object] the connection object to interact with the API
-  # @param user_id [Integer] the ID of the user
-  def initialize(conn, user_id)
+  def initialize(conn)
     @conn = conn
-    @user_id = user_id
   end
 
   # Retrieves the current week details
@@ -56,7 +57,7 @@ class Scorecard
     if meeting_id
       response = @conn.get("scorecard/meeting/#{meeting_id}").body
     else
-      user_id ||= @user_id
+      user_id ||= self.user_id
       response = @conn.get("scorecard/user/#{user_id}").body
     end
 

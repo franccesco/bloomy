@@ -5,7 +5,6 @@ RSpec.describe "Meeting Operations" do
   before(:all) do
     @client = Bloomy::Client.new
     @meeting_id = @client.meeting.create(title: "Test Meeting", add_self: true)[:meeting_id]
-    @user_id = @client.user.default_user_id
   end
 
   after(:all) do
@@ -13,7 +12,7 @@ RSpec.describe "Meeting Operations" do
   end
   context "when interacting with meetings API" do
     it "returns a list of meetings" do
-      meetings = @client.meeting.list(user_id: @user_id)
+      meetings = @client.meeting.list
       expect(meetings).to all(include(:id, :name))
     end
 
