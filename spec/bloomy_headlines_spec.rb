@@ -4,7 +4,6 @@ RSpec.describe "Headline Operations" do
   # Set up a test meeting and tear it down
   before(:all) do
     @client = Bloomy::Client.new
-    @user_id = @client.user.default_user_id
     @meeting_id = @client.meeting.create(title: "Test Meeting")[:meeting_id]
   end
 
@@ -36,7 +35,7 @@ RSpec.describe "Headline Operations" do
     end
 
     it "gets user headlines" do
-      headlines = @client.headline.user_headlines(user_id: @user_id)
+      headlines = @client.headline.user_headlines
 
       expect(headlines).not_to be_empty
     end

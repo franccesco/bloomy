@@ -3,10 +3,8 @@
 RSpec.describe "Goal Operations" do
   before(:all) do
     @client = Bloomy::Client.new
-    @user_id = @client.user.default_user_id
     @meeting_details = @client.meeting.create(title: "Test Meeting")
-    @created_goal = @client.goal.create(title: "Test Goal", user_id: @user_id,
-      meeting_id: @meeting_details[:meeting_id])
+    @created_goal = @client.goal.create(title: "Test Goal", meeting_id: @meeting_details[:meeting_id])
   end
 
   after(:all) do
@@ -15,7 +13,7 @@ RSpec.describe "Goal Operations" do
 
   context "when interacting with goals API" do
     it "returns user goals" do
-      goals = @client.goal.list(user_id: @user_id)
+      goals = @client.goal.list
       expect(goals).to include(
         {
           id: a_kind_of(Integer),
@@ -30,7 +28,7 @@ RSpec.describe "Goal Operations" do
     end
 
     it "returns user active & archived goals" do
-      goals = @client.goal.list(user_id: @user_id, archived: true)
+      goals = @client.goal.list(archived: true)
       expect(goals).to include(
         {
           active: a_kind_of(Array),

@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 RSpec.describe "User Operations" do
-  let(:client) { Bloomy::Client.new }
+  before(:all) do
+    @client = Bloomy::Client.new
+  end
 
   context "when interacting with the users API" do
     it "returns the basic user details" do
-      user_details = client.user.details
+      user_details = @client.user.details
       expect(user_details).to include(
         name: a_kind_of(String),
         id: a_kind_of(Integer),
@@ -16,7 +18,7 @@ RSpec.describe "User Operations" do
     end
 
     it "returns the user details with direct reports" do
-      user_details = client.user.details(direct_reports: true)
+      user_details = @client.user.details(direct_reports: true)
       expect(user_details).to include(
         name: a_kind_of(String),
         id: a_kind_of(Integer),
@@ -26,7 +28,7 @@ RSpec.describe "User Operations" do
     end
 
     it "returns the user details with positions" do
-      user_details = client.user.details(positions: true)
+      user_details = @client.user.details(positions: true)
       expect(user_details).to include(
         name: a_kind_of(String),
         id: a_kind_of(Integer),
@@ -36,7 +38,7 @@ RSpec.describe "User Operations" do
     end
 
     it "returns the direct reports of the user" do
-      direct_reports = client.user.direct_reports(user_id: client.user.default_user_id)
+      direct_reports = @client.user.direct_reports
       expect(direct_reports).to all(include(
         name: a_kind_of(String),
         id: a_kind_of(Integer),
@@ -45,7 +47,7 @@ RSpec.describe "User Operations" do
     end
 
     it "returns the positions of the user" do
-      positions = client.user.positions(user_id: client.user.default_user_id)
+      positions = @client.user.positions
       expect(positions).to all(include(
         name: a_kind_of(String),
         id: a_kind_of(Integer)
@@ -53,7 +55,7 @@ RSpec.describe "User Operations" do
     end
 
     it "returns the users that match the search term" do
-      users = client.user.search("fran")
+      users = @client.user.search("fran")
       expect(users).to all(include(
         id: a_kind_of(Integer),
         name: a_kind_of(String),
