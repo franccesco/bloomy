@@ -34,13 +34,12 @@ module Bloomy
         faraday.headers["Authorization"] = "Bearer #{@api_key}"
       end
       @user = User.new(@conn)
-      @user_id = @user.default_user_id
-      @todo = Todo.new(@conn, @user_id)
-      @goal = Goal.new(@conn, @user_id)
-      @meeting = Meeting.new(@conn, @user_id)
-      @scorecard = Scorecard.new(@conn, @user_id)
-      @issue = Issue.new(@conn, @user_id)
-      @headline = Headline.new(@conn, @user_id)
+      @todo = Todo.new(@conn)
+      @goal = Goal.new(@conn)
+      @meeting = Meeting.new(@conn)
+      @scorecard = Scorecard.new(@conn)
+      @issue = Issue.new(@conn)
+      @headline = Headline.new(@conn)
     end
   end
 end
