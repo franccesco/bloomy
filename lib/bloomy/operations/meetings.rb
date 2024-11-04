@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
+require "bloomy/utils/get_user_id"
+
 # Class to handle all the operations related to meeting
 # @note
 #   This class is already initialized via the client and usable as `client.measurable.method`
 class Meeting
+  include Bloomy::Utilities::UserIdUtility
   # Initializes a new Meeting instance
   #
   # @param conn [Object] the connection object to interact with the API
-  # @param user_id [Integer] the ID of the user
-  def initialize(conn, user_id)
+  def initialize(conn)
     @conn = conn
-    @user_id = user_id
   end
 
   # Lists all meetings for a specific user
@@ -20,7 +21,7 @@ class Meeting
   # @example
   #   client.meeting.list
   #   #=> [{ id: 123, name: "Team Meeting" }, ...]
-  def list(user_id: @user_id)
+  def list(user_id = self.user_id)
     response = @conn.get("L10/#{user_id}/list").body
     response.map { |meeting| {id: meeting["Id"], name: meeting["Name"]} }
   end
