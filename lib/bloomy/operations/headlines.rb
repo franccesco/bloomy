@@ -27,7 +27,7 @@ class Headline
       id: response.body["Id"],
       title: response.body["Title"],
       owner_id: response.body["OwnerId"],
-      notes: response.body["Notes"]
+      notes_url: response.body["DetailsUrl"]
     }
   end
 
@@ -53,6 +53,7 @@ class Headline
     {
       id: response.body["Id"],
       title: response.body["Name"],
+      notes_url: response.body["DetailsUrl"],
       meeting_details: {
         id: response.body["OriginId"],
         name: response.body["Origin"]

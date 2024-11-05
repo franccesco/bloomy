@@ -27,6 +27,7 @@ class Todo
       {
         id: todo["Id"],
         title: todo["Name"],
+        notes_url: todo["DetailsUrl"],
         due_date: todo["DueDate"],
         created_at: todo["CreateTime"],
         completed_at: todo["CompleteTime"],
@@ -57,7 +58,7 @@ class Todo
       meeting_name: response["Origin"],
       meeting_id: response["OriginId"],
       due_date: response["DueDate"],
-      details_url: response["DetailsUrl"]
+      notes_url: response["DetailsUrl"]
     }
   end
 
@@ -97,6 +98,31 @@ class Todo
       title: title,
       due_date: due_date,
       updated_at: DateTime.now.to_s
+    }
+  end
+
+  # Retrieves the details of a specific todo item by its ID.
+  #
+  # @param todo_id [String] The ID of the todo item to retrieve.
+  # @return [Hash] A hash containing the details of the todo item.
+  # @raise [RuntimeError] If the request to retrieve the todo details fails.
+  # @example
+  #  client.todo.details(1)
+  #  #=> { id: 1, title: "Updated Todo", due_date: "2024-11-01T01:41:41.528Z", ... }
+  def details(todo_id)
+    response = @conn.get("/api/v1/todo/#{todo_id}")
+    raise "Failed to get todo details. Status: #{response.status}" unless response.success?
+
+    todo = response.body
+    {
+      id: todo["Id"],
+      meeting_id: todo["OriginId"],
+      title: todo["Name"],
+      notes_url: todo["DetailsUrl"],
+      due_date: todo["DueDate"],
+      created_at: todo["CreateTime"],
+      completed_at: todo["CompleteTime"],
+      status: todo["Complete"] ? "Complete" : "Incomplete"
     }
   end
 end

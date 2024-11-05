@@ -5,7 +5,7 @@ RSpec.describe "Issue Operations" do
   before(:all) do
     @client = Bloomy::Client.new
     @meeting_id = @client.meeting.create(title: "Test Meeting")[:meeting_id]
-    @issue = @client.issue.create(meeting_id: @meeting_id, title: "Test Issue")
+    @issue = @client.issue.create(meeting_id: @meeting_id, title: "Test Issue", notes: "Note!")
     @issue_id = @issue[:id]
   end
 
@@ -23,6 +23,7 @@ RSpec.describe "Issue Operations" do
       details = @client.issue.details(@issue_id)
       expect(details[:title]).to eq("Test Issue")
       expect(details[:meeting_details][:id]).to eq(@meeting_id)
+      expect(details[:notes_url]).not_to be_nil
     end
 
     it "completes an issue" do

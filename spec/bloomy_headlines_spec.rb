@@ -13,7 +13,7 @@ RSpec.describe "Headline Operations" do
 
   # Create a headline before each test
   before(:each) do
-    @headline_id = @client.headline.create(@meeting_id, "Test Headline")[:id]
+    @headline_id = @client.headline.create(@meeting_id, "Test Headline", notes: "Note!")[:id]
   end
 
   context "when managing headlines" do
@@ -32,6 +32,7 @@ RSpec.describe "Headline Operations" do
       expect(headline[:title]).to eq("Test Headline")
       expect(headline[:meeting_details][:id]).to eq(@meeting_id)
       expect(headline[:meeting_details][:name]).to eq("Test Meeting")
+      expect(headline[:notes_url]).not_to be_nil
     end
 
     it "gets user headlines" do
