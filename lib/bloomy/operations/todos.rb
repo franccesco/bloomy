@@ -41,12 +41,13 @@ class Todo
   # @param meeting_id [Integer] the ID of the meeting associated with the todo
   # @param due_date [String, nil] the due date of the todo (optional)
   # @param user_id [Integer] the ID of the user responsible for the todo (default: initialized user ID)
+  # @param notes [String, nil] additional notes for the todo (optional)
   # @return [Hash] a hash containing the new todo's details
   # @example
   #   client.todo.create(title: "New Todo", meeting_id: 1, due_date: "2024-06-15")
   #   #=> { id: 1, title: "New Todo", meeting_name: "Team Meeting", ... }
-  def create(title:, meeting_id:, due_date: nil, user_id: self.user_id)
-    payload = {title: title, accountableUserId: user_id}
+  def create(title:, meeting_id:, due_date: nil, user_id: self.user_id, notes: nil)
+    payload = {title: title, accountableUserId: user_id, notes: notes}
     payload[:dueDate] = due_date if due_date
     response = @conn.post("/api/v1/L10/#{meeting_id}/todos", payload.to_json).body
 
@@ -55,7 +56,8 @@ class Todo
       title: response["Name"],
       meeting_name: response["Origin"],
       meeting_id: response["OriginId"],
-      due_date: response["DueDate"]
+      due_date: response["DueDate"],
+      details_url: response["DetailsUrl"]
     }
   end
 
