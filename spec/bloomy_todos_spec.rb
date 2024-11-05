@@ -7,7 +7,7 @@ RSpec.describe "Todo Operations" do
     @client = Bloomy::Client.new
     @meeting_id = @client.meeting.create(title: "Test Meeting")[:meeting_id]
     @due_date_7days = (Date.today + 7).to_s
-    @todo = @client.todo.create(title: "New Todo", meeting_id: @meeting_id)
+    @todo = @client.todo.create(title: "New Todo", meeting_id: @meeting_id, notes: "Note!")
   end
 
   after(:all) do
@@ -22,7 +22,8 @@ RSpec.describe "Todo Operations" do
           title: a_kind_of(String),
           meeting_id: eq(@meeting_id),
           meeting_name: a_kind_of(String),
-          due_date: a_kind_of(String)
+          due_date: a_kind_of(String),
+          details_url: a_kind_of(String)
         }
       )
     end
