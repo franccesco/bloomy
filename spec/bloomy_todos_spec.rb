@@ -23,7 +23,7 @@ RSpec.describe "Todo Operations" do
           meeting_id: eq(@meeting_id),
           meeting_name: a_kind_of(String),
           due_date: a_kind_of(String),
-          details_url: a_kind_of(String)
+          notes_url: a_kind_of(String)
         }
       )
     end
@@ -37,6 +37,18 @@ RSpec.describe "Todo Operations" do
       )
     end
 
+    it "gets todo details" do
+      todo_details = @client.todo.details(@todo[:id])
+      expect(todo_details).to include(
+        id: eq(@todo[:id]),
+        title: eq("Updated Todo"),
+        due_date: a_kind_of(String),
+        created_at: a_kind_of(String),
+        completed_at: nil,
+        status: eq("Incomplete")
+      )
+    end
+
     it "lists all todos" do
       todos = @client.todo.list
       expect(todos).to include(
@@ -46,7 +58,8 @@ RSpec.describe "Todo Operations" do
           due_date: a_kind_of(String),
           created_at: a_kind_of(String),
           completed_at: a_kind_of(String),
-          status: eq("Complete").or(eq("Incomplete"))
+          status: eq("Complete").or(eq("Incomplete")),
+          notes_url: a_kind_of(String)
         }
       )
     end

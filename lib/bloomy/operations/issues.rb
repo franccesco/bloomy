@@ -9,7 +9,6 @@ class Issue
   # Initializes a new Issue instance
   #
   # @param conn [Object] the connection object to interact with the API
-  # @param user_id [Integer] the ID of the user
   def initialize(conn)
     @conn = conn
   end
@@ -91,7 +90,7 @@ class Issue
       meeting_title: response.body["Origin"],
       title: response.body["Name"],
       user_id: response.body["Owner"]["Id"],
-      details_url: response.body["DetailsUrl"]
+      notes_url: response.body["DetailsUrl"]
     }
   end
 end
