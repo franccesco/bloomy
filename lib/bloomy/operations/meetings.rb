@@ -149,7 +149,7 @@ class Meeting
   # @example
   #   client.meeting.create(title: "New Meeting", attendees: [2, 3])
   #   #=> { meeting_id: 1, title: "New Meeting", attendees: [2, 3] }
-  def create(title:, add_self: true, attendees: [])
+  def create(title, add_self: true, attendees: [])
     payload = {title: title, addSelf: add_self}.to_json
     response = @conn.post("L10/create", payload).body
     meeting_id = response["meetingId"]
