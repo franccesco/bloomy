@@ -39,15 +39,33 @@ class Issue
     }
   end
 
-  # Lists issues for a specific user
+  # Lists issues for a specific user or meeting
   #
-  # @param user_id [Integer] the ID of the user (default is the initialized user ID)
+  # @param user_id [Integer, nil] the ID of the user (defaults to initialized user_id)
+  # @param meeting_id [Integer, nil] the ID of the meeting
+  # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
   # @return [Array<Hash>] an array of hashes containing issues details
   # @example
+  #   # Fetch issues for the current user
   #   issue.list
-  #   #=> [{ id: 123, title: "Issue Title", notes_url: "http://details.url", ... }, ...]
-  def list(user_id = self.user_id)
-    response = @conn.get("issues/users/#{user_id}").body
+  #
+  #   # Fetch issues for a specific user
+  #   issue.list(user_id: 42)
+  #
+  #   # Fetch issues for a specific meeting
+  #   issue.list(meeting_id: 99)
+  def list(user_id: nil, meeting_id: nil)
+    if user_id && meeting_id
+      raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both."
+    end
+
+    if meeting_id
+      response = @conn.get("l10/#{meeting_id}/issues").body
+    else
+      user_id ||= self.user_id
+      response = @conn.get("issues/users/#{user_id}").body
+    end
+
     response.map do |issue|
       {
         id: issue["Id"],

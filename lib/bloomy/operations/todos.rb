@@ -14,15 +14,36 @@ class Todo
     @conn = conn
   end
 
-  # Lists all todos for a specific user
+  # Lists all todos for a specific user or meeting
   #
-  # @param user_id [Integer] the ID of the user (default is the initialized user ID)
+  # @param user_id [Integer, nil] the ID of the user (default is the initialized user ID)
+  # @param meeting_id [Integer, nil] the ID of the meeting
   # @return [Array<Hash>] an array of hashes containing todo details
+  # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
   # @example
+  #   # Fetch todos for the current user
   #   client.todo.list
-  #   #=> [{ id: 1, title: "Finish report", due_date: "2024-06-10", ... }, ...]
-  def list(user_id: self.user_id)
-    response = @conn.get("todo/user/#{user_id}").body
+  #   #=> [{ id: 1, title: "New Todo", due_date: "2024-06-15", ... }]
+  #
+  #   # Fetch todos for a specific user
+  #   client.todo.list(user_id: 42)
+  #   # => [{ id: 1, title: "New Todo", due_date: "2024-06-15", ... }]
+  #
+  #   # Fetch todos for a specific meeting
+  #   client.todo.list(meeting_id: 99)
+  #   # => [{ id: 1, title: "New Todo", due_date: "2024-06-15", ... }]
+  def list(user_id: nil, meeting_id: nil)
+    if user_id && meeting_id
+      raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both."
+    end
+
+    if meeting_id
+      response = @conn.get("l10/#{meeting_id}/todos").body
+    else
+      user_id ||= self.user_id
+      response = @conn.get("todo/user/#{user_id}").body
+    end
+
     response.map do |todo|
       {
         id: todo["Id"],
