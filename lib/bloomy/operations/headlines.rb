@@ -68,13 +68,30 @@ class Headline
     }
   end
 
-  # Get user headlines
+  # Get headlines for a user or a meeting.
   #
-  # @param user_id [Integer] the ID of the user
-  # @return [Array] the list of headlines for the user
-  def user_headlines(user_id = self.user_id)
-    response = @conn.get("/api/v1/headline/users/#{user_id}")
-    raise "Failed to list headlines" unless response.status == 200
+  # @param user_id [Integer, nil] the ID of the user (defaults to initialized user_id)
+  # @param meeting_id [Integer, nil] the ID of the meeting
+  # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
+  # @return [Array<Hash>] the list of headlines
+  # @example
+  #  # Fetch headlines for a user
+  #  client.headline.list
+  #  #=> [{ id: 1, title: "Headline Title", meeting_details: { id: 1, name: "Team Meeting" }, ... }, ...]
+  def list(user_id: nil, meeting_id: nil)
+    if user_id && meeting_id
+      raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both."
+    end
+
+    if meeting_id
+      response = @conn.get("/api/v1/l10/#{meeting_id}/headlines")
+    else
+      user_id ||= self.user_id
+      response = @conn.get("/api/v1/headline/users/#{user_id}")
+    end
+
+    raise "Failed to list headlines" unless response.success?
+
     response.body.map do |headline|
       {
         id: headline["Id"],
