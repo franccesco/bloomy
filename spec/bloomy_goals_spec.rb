@@ -3,7 +3,7 @@
 RSpec.describe "Goal Operations" do
   before(:all) do
     @client = Bloomy::Client.new
-    @meeting_details = @client.meeting.create(title: "Test Meeting")
+    @meeting_details = @client.meeting.create("Test Meeting")
     @created_goal = @client.goal.create(title: "Test Goal", meeting_id: @meeting_details[:meeting_id])
   end
 
