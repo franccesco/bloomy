@@ -5,7 +5,7 @@ require "date"
 RSpec.describe "Todo Operations" do
   before(:all) do
     @client = Bloomy::Client.new
-    @meeting_id = @client.meeting.create(title: "Test Meeting")[:meeting_id]
+    @meeting_id = @client.meeting.create("Test Meeting")[:meeting_id]
     @due_date_7days = (Date.today + 7).to_s
     @todo = @client.todo.create(title: "New Todo", meeting_id: @meeting_id, notes: "Note!")
   end
@@ -49,7 +49,7 @@ RSpec.describe "Todo Operations" do
       )
     end
 
-    it "lists all todos" do
+    it "lists the current user todos" do
       todos = @client.todo.list
       expect(todos).to include(
         {
@@ -62,6 +62,11 @@ RSpec.describe "Todo Operations" do
           notes_url: a_kind_of(String)
         }
       )
+    end
+
+    it "lists the meeting todos" do
+      todos = @client.todo.list(meeting_id: @meeting_id)
+      expect(todos).to_not be_empty
     end
 
     it "completes a todo" do
