@@ -18,14 +18,14 @@ class Headline
   # @param owner_id [Integer] the ID of the headline owner
   # @param notes [String] additional notes for the headline
   # @return [Hash] the created headline details
-  def create(meeting_id, title, owner_id: user_id, notes: nil)
+  def create(meeting_id:, title:, owner_id: user_id, notes: nil)
     response = @conn.post("/api/v1/L10/#{meeting_id}/headlines",
       {title: title, ownerId: owner_id, notes: notes}.to_json)
     raise "Failed to create headline" unless response.status == 200
 
     {
       id: response.body["Id"],
-      title: response.body["Title"],
+      title: response.body["Name"],
       owner_id: response.body["OwnerId"],
       notes_url: response.body["DetailsUrl"]
     }
@@ -36,7 +36,7 @@ class Headline
   # @param headline_id [Integer] the ID of the headline to update
   # @param title [String] the new title of the headline
   # @return [Hash] the updated headline details
-  def update(headline_id, title)
+  def update(headline_id:, title:)
     response = @conn.put("/api/v1/headline/#{headline_id}", {title: title}.to_json)
     raise "Failed to update headline" unless response.status == 200
     true
@@ -114,8 +114,8 @@ class Headline
   # @param meeting_id [Integer] the ID of the meeting
   # @param headline_id [Integer] the ID of the headline to delete
   # @return [Boolean] true if the deletion was successful
-  def delete(meeting_id, headline_id)
-    response = @conn.delete("/api/v1/L10/#{meeting_id}/headlines/#{headline_id}")
+  def delete(headline_id)
+    response = @conn.delete("/api/v1/headline/#{headline_id}")
     response.success?
   end
 end
