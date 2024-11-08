@@ -29,7 +29,7 @@ class Goal
         due_date: goal["DueDate"],
         status: goal["Complete"] ? "Completed" : "Incomplete",
         meeting_id: goal["Origins"].empty? ? nil : goal["Origins"][0]["Id"],
-        meeting_name: goal["Origins"].empty? ? nil : goal["Origins"][0]["Name"]
+        meeting_title: goal["Origins"].empty? ? nil : goal["Origins"][0]["Name"]
       }
     end
 
@@ -52,7 +52,7 @@ class Goal
       goal_id: response["Id"],
       title: title,
       meeting_id: meeting_id,
-      meeting_name: response["Origins"][0]["Name"],
+      meeting_title: response["Origins"][0]["Name"],
       user_id: user_id,
       user_name: response["Owner"]["Name"],
       created_at: DateTime.parse(response["CreateTime"])

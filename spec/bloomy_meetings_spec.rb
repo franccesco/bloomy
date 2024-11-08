@@ -38,7 +38,7 @@ RSpec.describe "Meeting Operations" do
 
     it "returns meeting details" do
       details = @client.meeting.details(@meeting_id)
-      expect(details).to include(:id, :name, :attendees, :issues, :todos, :metrics)
+      expect(details).to include(:id, :title, :attendees, :issues, :todos, :metrics)
     end
   end
 end

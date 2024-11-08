@@ -22,7 +22,7 @@ RSpec.describe "Goal Operations" do
           due_date: a_kind_of(String),
           status: eq("Completed").or(eq("Incomplete")),
           meeting_id: a_kind_of(Integer),
-          meeting_name: a_kind_of(String)
+          meeting_title: a_kind_of(String)
         }
       )
     end
@@ -43,7 +43,7 @@ RSpec.describe "Goal Operations" do
           goal_id: a_kind_of(Integer),
           title: a_kind_of(String),
           meeting_id: a_kind_of(Integer),
-          meeting_name: a_kind_of(String),
+          meeting_title: a_kind_of(String),
           user_id: a_kind_of(Integer),
           user_name: a_kind_of(String),
           created_at: a_kind_of(DateTime)
