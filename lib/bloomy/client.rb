@@ -25,6 +25,9 @@ module Bloomy
     def initialize(api_key = nil)
       @configuration = Configuration.new unless api_key
       @api_key = api_key || @configuration.api_key
+
+      raise ArgumentError, "No API key provided. Set it in configuration or pass it directly." unless @api_key
+
       @base_url = "https://app.bloomgrowth.com/api/v1"
       @conn = Faraday.new(url: @base_url) do |faraday|
         faraday.response :json
