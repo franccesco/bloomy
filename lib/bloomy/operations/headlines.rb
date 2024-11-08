@@ -114,8 +114,8 @@ class Headline
   # @param meeting_id [Integer] the ID of the meeting
   # @param headline_id [Integer] the ID of the headline to delete
   # @return [Boolean] true if the deletion was successful
-  def delete(meeting_id:, headline_id:)
-    response = @conn.delete("/api/v1/L10/#{meeting_id}/headlines/#{headline_id}")
+  def delete(headline_id)
+    response = @conn.delete("/api/v1/headline/#{headline_id}")
     response.success?
   end
 end
