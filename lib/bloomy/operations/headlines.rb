@@ -79,9 +79,7 @@ class Headline
   #  client.headline.list
   #  #=> [{ id: 1, title: "Headline Title", meeting_details: { id: 1, name: "Team Meeting" }, ... }, ...]
   def list(user_id: nil, meeting_id: nil)
-    if user_id && meeting_id
-      raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both."
-    end
+    raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both." if user_id && meeting_id
 
     if meeting_id
       response = @conn.get("/api/v1/l10/#{meeting_id}/headlines")
@@ -118,9 +116,6 @@ class Headline
   # @return [Boolean] true if the deletion was successful
   def delete(meeting_id, headline_id)
     response = @conn.delete("/api/v1/L10/#{meeting_id}/headlines/#{headline_id}")
-
-    # Raise an issue if response.status != 200
-    raise "Failed to delete headline" unless response.status == 200
-    true
+    response.success?
   end
 end
