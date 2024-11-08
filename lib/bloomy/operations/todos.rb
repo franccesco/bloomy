@@ -90,7 +90,7 @@ class Todo
   #   #=> { status: 200 }
   def complete(todo_id)
     response = @conn.post("/api/v1/todo/#{todo_id}/complete?status=true")
-    {status: response.status}
+    response.success?
   end
 
   # Updates an existing todo

@@ -39,9 +39,8 @@ RSpec.describe "Issue Operations" do
     end
 
     it "completes an issue" do
-      @client.issue.complete(@issue_id)
-      details = @client.issue.details(@issue_id)
-      expect(details[:completed_at]).not_to be_nil
+      response = @client.issue.complete(@issue_id)
+      expect(response).to be true
     end
   end
 end

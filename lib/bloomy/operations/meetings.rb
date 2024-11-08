@@ -166,6 +166,7 @@ class Meeting
   # @example
   #   client.meeting.delete(1)
   def delete(meeting_id)
-    @conn.delete("L10/#{meeting_id}")
+    response = @conn.delete("L10/#{meeting_id}")
+    response.success?
   end
 end

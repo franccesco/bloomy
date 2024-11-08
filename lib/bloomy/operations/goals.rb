@@ -68,7 +68,7 @@ class Goal
   #   #=> { status: 200 }
   def delete(goal_id)
     response = @conn.delete("/api/v1/rocks/#{goal_id}")
-    {status: response.status}
+    response.success?
   end
 
   # Updates a goal
@@ -83,7 +83,7 @@ class Goal
   def update(goal_id:, title:, accountable_user: user_id)
     payload = {title: title, accountableUserId: accountable_user}.to_json
     response = @conn.put("/api/v1/rocks/#{goal_id}", payload)
-    {status: response.status}
+    response.success?
   end
 
   private

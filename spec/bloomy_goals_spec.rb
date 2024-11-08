@@ -53,12 +53,12 @@ RSpec.describe "Goal Operations" do
 
     it "updates the created goal" do
       response = @client.goal.update(goal_id: @created_goal[:goal_id], title: "Updated Goal")
-      expect(response).to include(status: 200)
+      expect(response).to be true
     end
 
     it "deletes the created goal" do
       response = @client.goal.delete(@created_goal[:goal_id])
-      expect(response).to include(status: 200)
+      expect(response).to be true
     end
   end
 end

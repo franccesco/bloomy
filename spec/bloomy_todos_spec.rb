@@ -71,7 +71,7 @@ RSpec.describe "Todo Operations" do
 
     it "completes a todo" do
       completed_todo = @client.todo.complete(@todo[:id])
-      expect(completed_todo).to include(status: 200)
+      expect(completed_todo).to be true
     end
   end
 end

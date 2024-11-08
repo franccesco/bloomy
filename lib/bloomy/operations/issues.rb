@@ -86,8 +86,8 @@ class Issue
   #   issue.complete(123)
   #   #=> true
   def complete(issue_id)
-    response = @conn.post("issues/#{issue_id}/complete", {complete: true}.to_json).status
-    response == 200
+    response = @conn.post("issues/#{issue_id}/complete", {complete: true}.to_json)
+    response.success?
   end
 
   # Creates a new issue
