@@ -13,7 +13,7 @@ RSpec.describe "Headline Operations" do
 
   # Create a headline before each test
   before(:each) do
-    @headline_id = @client.headline.create(@meeting_id, "Test Headline", notes: "Note!")[:id]
+    @headline_id = @client.headline.create(meeting_id: @meeting_id, title: "Test Headline", notes: "Note!")[:id]
   end
 
   context "when managing headlines" do
@@ -22,7 +22,7 @@ RSpec.describe "Headline Operations" do
     end
 
     it "updates a headline" do
-      status = @client.headline.update(@headline_id, "Updated Headline")
+      status = @client.headline.update(headline_id: @headline_id, title: "Updated Headline")
       expect(status).to be true
     end
 
@@ -48,7 +48,7 @@ RSpec.describe "Headline Operations" do
     end
 
     it "deletes a headline" do
-      status = @client.headline.delete(@meeting_id, @headline_id)
+      status = @client.headline.delete(@headline_id)
 
       expect(status).to be true
     end
