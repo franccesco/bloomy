@@ -38,8 +38,8 @@ RSpec.describe "Issue Operations" do
       expect(issues).not_to be_empty
     end
 
-    it "completes an issue" do
-      response = @client.issue.complete(@issue_id)
+    it "solves an issue" do
+      response = @client.issue.solve(@issue_id)
       expect(response).to be true
     end
   end

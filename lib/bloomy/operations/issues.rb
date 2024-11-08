@@ -78,14 +78,14 @@ class Issue
     end
   end
 
-  # Marks an issue as complete
+  # Marks an issue as solved
   #
   # @param issue_id [Integer] the ID of the issue
   # @return [Boolean] true if the operation was successful, false otherwise
   # @example
-  #   issue.complete(123)
+  #   issue.solve(123)
   #   #=> true
-  def complete(issue_id)
+  def solve(issue_id)
     response = @conn.post("issues/#{issue_id}/complete", {complete: true}.to_json)
     response.success?
   end
