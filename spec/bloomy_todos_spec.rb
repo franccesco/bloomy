@@ -21,7 +21,7 @@ RSpec.describe "Todo Operations" do
           id: a_kind_of(Integer),
           title: a_kind_of(String),
           meeting_id: eq(@meeting_id),
-          meeting_name: a_kind_of(String),
+          meeting_title: a_kind_of(String),
           due_date: a_kind_of(String),
           notes_url: a_kind_of(String)
         }

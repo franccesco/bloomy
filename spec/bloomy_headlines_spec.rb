@@ -31,7 +31,7 @@ RSpec.describe "Headline Operations" do
 
       expect(headline[:title]).to eq("Test Headline")
       expect(headline[:meeting_details][:id]).to eq(@meeting_id)
-      expect(headline[:meeting_details][:name]).to eq("Test Meeting")
+      expect(headline[:meeting_details][:title]).to eq("Test Meeting")
       expect(headline[:notes_url]).not_to be_nil
     end
 
