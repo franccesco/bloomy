@@ -33,9 +33,7 @@ class Todo
   #   client.todo.list(meeting_id: 99)
   #   # => [{ id: 1, title: "New Todo", due_date: "2024-06-15", ... }]
   def list(user_id: nil, meeting_id: nil)
-    if user_id && meeting_id
-      raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both."
-    end
+    raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both." if user_id && meeting_id
 
     if meeting_id
       response = @conn.get("l10/#{meeting_id}/todos").body

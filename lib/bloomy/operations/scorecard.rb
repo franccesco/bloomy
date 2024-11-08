@@ -54,9 +54,7 @@ class Scorecard
   #  For example, to fetch scores for the previous week, you can set `week_offset` to -1.
   #  To fetch scores for a future week, you can set `week_offset` to a positive value.
   def list(user_id: nil, meeting_id: nil, show_empty: false, week_offset: nil)
-    if user_id && meeting_id
-      raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both."
-    end
+    raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both." if user_id && meeting_id
 
     if meeting_id
       response = @conn.get("scorecard/meeting/#{meeting_id}").body
