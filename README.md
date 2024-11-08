@@ -8,7 +8,7 @@ Bloomy is a Ruby library for interacting with the Bloom Growth API. It provides 
 
 Add this line to your application's Gemfile:
 
-```ruby
+```sh
 bundle add bloomy
 ```
 
@@ -88,19 +88,19 @@ To interact with todo-related features:
 todos = client.todo.list
 
 # Create a new todo
-new_todo = client.todo.create(title: "New Task", meeting_id: 1, due_date: "2024-06-15")
+new_todo = client.todo.create(meeting_id: 1, title: "New Task", due_date: "2024-06-15")
 ```
 
-### Rock Management
+### Goal Management
 
-To interact with rock-related features:
+To interact with goal-related features:
 
 ```ruby
-# List all rocks for the current user
-rocks = client.rock.list
+# List all goals for the current user
+goals = client.goal.list
 
-# Create a new rock
-new_rock = client.rock.create(title: "New Rock", meeting_id: 1)
+# Create a new goal
+new_goal = client.goal.create(meeting_id: 1, title: "New Goal")
 ```
 
 ### Scorecard Management
@@ -124,5 +124,5 @@ To interact with issue-related features:
 issue_details = client.issue.details(issue_id)
 
 # Create a new issue
-new_issue = client.issue.create("New Issue", meeting_id)
+new_issue = client.issue.create(meeting_id: 1, title: "New Issue")
 ```
