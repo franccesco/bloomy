@@ -52,7 +52,11 @@ RSpec.describe "Goal Operations" do
     end
 
     it "updates the created goal" do
-      response = @client.goal.update(goal_id: @created_goal[:goal_id], title: "Updated Goal")
+      response = @client.goal.update(goal_id: @created_goal[:goal_id], title: "On Goal", status: "on")
+      expect(response).to be true
+      response = @client.goal.update(goal_id: @created_goal[:goal_id], title: "Off Goal", status: "off")
+      expect(response).to be true
+      response = @client.goal.update(goal_id: @created_goal[:goal_id], title: "Complete Goal", status: "complete")
       expect(response).to be true
     end
 

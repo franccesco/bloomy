@@ -76,12 +76,22 @@ class Goal
   # @param goal_id [Integer] the ID of the goal to update
   # @param title [String] the new title of the goal
   # @param accountable_user [Integer] the ID of the user responsible for the goal (default: initialized user ID)
-  # @return [Hash] a hash containing the status of the update operation
+  # @param status [String, nil] the status value ('on', 'off', or 'complete')
+  # @return [Boolean] true if the update was successful
+  # @raise [ArgumentError] if an invalid status value is provided
   # @example
-  #   client.goal.update(goal_id: 1, title: "Updated Goal")
-  #   #=> { status: 200 }
-  def update(goal_id:, title:, accountable_user: user_id)
-    payload = {title: title, accountableUserId: accountable_user}.to_json
+  #   client.goal.update(goal_id: 1, title: "Updated Goal", status: 'on')
+  #   #=> true
+  def update(goal_id:, title:, accountable_user: user_id, status: nil)
+    if status
+      valid_status = {on: "OnTrack", off: "AtRisk", complete: "Complete"}
+      status_key = status.downcase.to_sym
+      unless valid_status.key?(status_key)
+        raise ArgumentError, "Invalid status value. Must be 'on', 'off', or 'complete'."
+      end
+      status = valid_status[status_key]
+    end
+    payload = {title: title, accountableUserId: accountable_user, completion: status}.to_json
     response = @conn.put("/api/v1/rocks/#{goal_id}", payload)
     response.success?
   end
