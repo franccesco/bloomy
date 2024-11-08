@@ -100,7 +100,7 @@ class Meeting
     response.map do |measurable|
       {
         id: measurable["Id"],
-        name: measurable["Name"].strip,
+        title: measurable["Name"].strip,
         target: measurable["Target"],
         operator: measurable["Direction"],
         format: measurable["Modifiers"],
@@ -132,7 +132,7 @@ class Meeting
     measurables = metrics(meeting_id)
     {
       id: meeting[:id],
-      name: meeting[:name],
+      title: meeting[:name],
       attendees: attendees,
       issues: issues,
       todos: todos,

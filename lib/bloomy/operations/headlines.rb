@@ -56,7 +56,7 @@ class Headline
       notes_url: response.body["DetailsUrl"],
       meeting_details: {
         id: response.body["OriginId"],
-        name: response.body["Origin"]
+        title: response.body["Origin"]
       },
       owner_details: {
         id: response.body["Owner"]["Id"],
@@ -96,7 +96,7 @@ class Headline
         title: headline["Name"],
         meeting_details: {
           id: headline["OriginId"],
-          name: headline["Origin"]
+          title: headline["Origin"]
         },
         owner_details: {
           id: headline["Owner"]["Id"],

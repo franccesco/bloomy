@@ -74,7 +74,7 @@ class Todo
     {
       id: response["Id"],
       title: response["Name"],
-      meeting_name: response["Origin"],
+      meeting_title: response["Origin"],
       meeting_id: response["OriginId"],
       due_date: response["DueDate"],
       notes_url: response["DetailsUrl"]
@@ -136,6 +136,7 @@ class Todo
     {
       id: todo["Id"],
       meeting_id: todo["OriginId"],
+      meeting_title: todo["Origin"],
       title: todo["Name"],
       notes_url: todo["DetailsUrl"],
       due_date: todo["DueDate"],

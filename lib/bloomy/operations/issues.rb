@@ -30,7 +30,7 @@ class Issue
       completed_at: response["CloseTime"],
       meeting_details: {
         id: response["OriginId"],
-        name: response["Origin"]
+        title: response["Origin"]
       },
       owner_details: {
         id: response["Owner"]["Id"],
@@ -73,7 +73,7 @@ class Issue
         notes_url: issue["DetailsUrl"],
         created_at: issue["CreateTime"],
         meeting_id: issue["OriginId"],
-        meeting_name: issue["Origin"]
+        meeting_title: issue["Origin"]
       }
     end
   end
