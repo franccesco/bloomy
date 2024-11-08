@@ -49,6 +49,10 @@ class Scorecard
   #
   #   # Fetch scorecards for a specific meeting
   #   client.scorecard.list(meeting_id: 99)
+  # @note
+  #  The `week_offset` parameter is useful when fetching scores for previous or future weeks.
+  #  For example, to fetch scores for the previous week, you can set `week_offset` to -1.
+  #  To fetch scores for a future week, you can set `week_offset` to a positive value.
   def list(user_id: nil, meeting_id: nil, show_empty: false, week_offset: nil)
     if user_id && meeting_id
       raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both."
@@ -70,14 +74,15 @@ class Scorecard
         target: scorecard["Target"],
         value: scorecard["Measured"],
         week: scorecard["Week"],
+        week_id: scorecard["ForWeek"],
         updated_at: scorecard["DateEntered"]
       }
     end
 
     if week_offset
       week_data = current_week
-      week_id = week_data[:week_number] - week_offset
-      scorecards.select! { |scorecard| scorecard[:week] == week_id }
+      week_id = week_data[:week_number] + week_offset
+      scorecards.select! { |scorecard| scorecard[:week_id] == week_id }
     end
 
     scorecards.select! { |scorecard| scorecard[:value] || show_empty } unless show_empty
@@ -95,11 +100,11 @@ class Scorecard
   #  #=> true
   # @note
   #  The `week_offset` parameter is useful when updating scores for previous weeks.
-  #  For example, to update the score for the previous week, you can set `week_offset` to 1.
-  #  To update a future week's score, you can set `week_offset` to a negative value.
+  #  For example, to update the score for the previous week, you can set `week_offset` to -1.
+  #  To update a future week's score, you can set `week_offset` to a positive value.
   def score(measurable_id:, score:, week_offset: 0)
     week_data = current_week
-    week_id = week_data[:week_number] - week_offset
+    week_id = week_data[:week_number] + week_offset
 
     response = @conn.put("measurables/#{measurable_id}/week/#{week_id}", {value: score}.to_json)
     response.success?
