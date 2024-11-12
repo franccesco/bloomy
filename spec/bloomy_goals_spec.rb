@@ -60,6 +60,26 @@ RSpec.describe "Goal Operations" do
       expect(response).to be true
     end
 
+    it "archives the created goal" do
+      # Archive the goal
+      response = @client.goal.archive(@created_goal[:goal_id])
+      expect(response).to be true
+
+      # Verify goal appears in archived list
+      goals = @client.goal.list(archived: true)
+      expect(goals[:archived]).to include(hash_including(id: @created_goal[:goal_id]))
+    end
+
+    it "restores the archived goal" do
+      # Restore the goal
+      response = @client.goal.restore(@created_goal[:goal_id])
+      expect(response).to be true
+
+      # Verify goal appears in active list
+      goals = @client.goal.list(archived: true)
+      expect(goals[:active]).to include(hash_including(id: @created_goal[:goal_id]))
+    end
+
     it "deletes the created goal" do
       response = @client.goal.delete(@created_goal[:goal_id])
       expect(response).to be true

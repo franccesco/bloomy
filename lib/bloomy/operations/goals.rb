@@ -47,7 +47,7 @@ class Goal
   #   #=> { goal_id: 1, title: "New Goal", meeting_id: 1, ... }
   def create(title:, meeting_id:, user_id: self.user_id)
     payload = {title: title, accountableUserId: user_id}.to_json
-    response = @conn.post("/api/v1/L10/#{meeting_id}/rocks", payload).body
+    response = @conn.post("L10/#{meeting_id}/rocks", payload).body
     {
       goal_id: response["Id"],
       title: title,
@@ -67,7 +67,7 @@ class Goal
   #   client.goal.delete(1)
   #   #=> { status: 200 }
   def delete(goal_id)
-    response = @conn.delete("/api/v1/rocks/#{goal_id}")
+    response = @conn.delete("rocks/#{goal_id}")
     response.success?
   end
 
@@ -92,7 +92,29 @@ class Goal
       status = valid_status[status_key]
     end
     payload = {title: title, accountableUserId: accountable_user, completion: status}.to_json
-    response = @conn.put("/api/v1/rocks/#{goal_id}", payload)
+    response = @conn.put("rocks/#{goal_id}", payload)
+    response.success?
+  end
+
+  # Archives a rock with the specified goal ID.
+  #
+  # @param goal_id [Integer] The ID of the goal/rock to archive
+  # @return [Boolean] Returns true if the archival was successful, false otherwise
+  # @example
+  #  goals.archive(123) #=> true
+  def archive(goal_id)
+    response = @conn.put("rocks/#{goal_id}/archive")
+    response.success?
+  end
+
+  # Restores a previously archived goal identified by the provided goal ID.
+  #
+  # @param [String, Integer] goal_id The unique identifier of the goal to restore
+  # @return [Boolean] true if the restore operation was successful, false otherwise
+  # @example Restoring a goal
+  #   goals.restore("123") #=> true
+  def restore(goal_id)
+    response = @conn.put("rocks/#{goal_id}/restore")
     response.success?
   end
 
