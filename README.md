@@ -2,7 +2,7 @@
 
 [![Gem Version](https://badge.fury.io/rb/bloomy.svg)](https://badge.fury.io/rb/bloomy)[![RSpec Tests](https://github.com/franccesco/bloomy/actions/workflows/main.yml/badge.svg)](https://github.com/franccesco/bloomy/actions/workflows/main.yml) [![Deploy Docs](https://github.com/franccesco/bloomy/actions/workflows/deploy_docs.yml/badge.svg)](https://github.com/franccesco/bloomy/actions/workflows/deploy_docs.yml)
 
-Bloomy is a Ruby library for interacting with the Bloom Growth API. It provides convenient methods for getting user details, todos, rocks, meetings, measurables, and issues.
+Bloomy is an **_unofficial_** Ruby library for interacting with the Bloom Growth API. It provides convenient methods for getting user details, todos, rocks, meetings, measurables, and issues.
 
 ## Installation
 
