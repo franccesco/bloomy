@@ -47,7 +47,7 @@ class Goal
   #   #=> { goal_id: 1, title: "New Goal", meeting_id: 1, ... }
   def create(title:, meeting_id:, user_id: self.user_id)
     payload = {title: title, accountableUserId: user_id}.to_json
-    response = @conn.post("/api/v1/L10/#{meeting_id}/rocks", payload).body
+    response = @conn.post("L10/#{meeting_id}/rocks", payload).body
     {
       goal_id: response["Id"],
       title: title,
@@ -67,7 +67,7 @@ class Goal
   #   client.goal.delete(1)
   #   #=> { status: 200 }
   def delete(goal_id)
-    response = @conn.delete("/api/v1/rocks/#{goal_id}")
+    response = @conn.delete("rocks/#{goal_id}")
     response.success?
   end
 
