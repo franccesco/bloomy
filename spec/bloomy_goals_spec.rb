@@ -46,9 +46,11 @@ RSpec.describe "Goal Operations" do
           meeting_title: a_kind_of(String),
           user_id: a_kind_of(Integer),
           user_name: a_kind_of(String),
-          created_at: a_kind_of(DateTime)
+          created_at: a_kind_of(String)
         }
       )
+
+      expect { DateTime.parse(@created_goal[:created_at]) }.not_to raise_error
     end
 
     it "updates the created goal" do
