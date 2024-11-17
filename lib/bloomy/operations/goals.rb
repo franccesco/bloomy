@@ -55,7 +55,7 @@ class Goal
       meeting_title: response["Origins"][0]["Name"],
       user_id: user_id,
       user_name: response["Owner"]["Name"],
-      created_at: DateTime.parse(response["CreateTime"])
+      created_at: response["CreateTime"]
     }
   end
 
