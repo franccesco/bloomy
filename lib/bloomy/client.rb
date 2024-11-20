@@ -8,6 +8,7 @@ require_relative "operations/meetings"
 require_relative "operations/scorecard"
 require_relative "operations/issues"
 require_relative "operations/headlines"
+require_relative "utils/plugin_loader"
 
 module Bloomy
   # The Client class is the main entry point for interacting with the Bloomy API.
@@ -43,6 +44,9 @@ module Bloomy
       @scorecard = Scorecard.new(@conn)
       @issue = Issue.new(@conn)
       @headline = Headline.new(@conn)
+
+      # Initialize plugins
+      Bloomy::Utilities::Plugin.apply(self)
     end
   end
 end
