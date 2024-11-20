@@ -78,4 +78,27 @@ class User
       }
     end
   end
+
+  # Retrieves all users in the system
+  #
+  # @param include_placeholders [Boolean] whether to include users
+  # @return [Array<Hash>] an array of hashes containing user details
+  # @example
+  #   user.all
+  #   #=> [{id: 1, name: "John Doe", email: "john@example.com", ...}, ...]
+  def all(include_placeholders: false)
+    users = @conn.get("search/all", term: "%").body
+    users
+      .select { |user| user["ResultType"] == "User" }
+      .reject { |user| !include_placeholders && user["ImageUrl"] == "/i/userplaceholder" }
+      .map do |user|
+        {
+          id: user["Id"],
+          name: user["Name"],
+          email: user["Email"],
+          position: user["Description"],
+          image_url: user["ImageUrl"]
+        }
+      end
+  end
 end
