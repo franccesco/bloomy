@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "bloomy/utils/get_user_id"
+require "bloomy/types/items"
 
 # Class to handle all the operations related to meeting
 # @note
@@ -23,7 +24,7 @@ class Meeting
   #   #=> [{ id: 123, name: "Team Meeting" }, ...]
   def list(user_id = self.user_id)
     response = @conn.get("L10/#{user_id}/list").body
-    response.map { |meeting| {id: meeting["Id"], name: meeting["Name"]} }
+    response.map { |meeting| MeetingItem.new(id: meeting["Id"], title: meeting["Name"]) }
   end
 
   # Lists all attendees for a specific meeting
@@ -35,7 +36,7 @@ class Meeting
   #   #=> [{ name: "John Doe", id: 1 }, ...]
   def attendees(meeting_id)
     response = @conn.get("L10/#{meeting_id}/attendees").body
-    response.map { |attendee| {name: attendee["Name"], id: attendee["Id"]} }
+    response.map { |attendee| MeetingAttendee.new(id: attendee["Id"], name: attendee["Name"]) }
   end
 
   # Lists all issues for a specific meeting
@@ -97,23 +98,27 @@ class Meeting
   #   #=> [{ id: 1, name: "Sales", target: 100, operator: ">", format: "currency", ... }, ...]
   def metrics(meeting_id)
     response = @conn.get("L10/#{meeting_id}/measurables").body
+    return [] if response.nil? || !response.is_a?(Array)
+
     response.map do |measurable|
-      {
+      next unless measurable["Id"] && measurable["Name"]
+
+      MeetingMetric.new(
         id: measurable["Id"],
-        title: measurable["Name"].strip,
-        target: measurable["Target"],
-        operator: measurable["Direction"],
-        format: measurable["Modifiers"],
-        owner: {
-          id: measurable["Owner"]["Id"],
-          name: measurable["Owner"]["Name"]
-        },
-        admin: {
-          id: measurable["Admin"]["Id"],
-          name: measurable["Admin"]["Name"]
-        }
-      }
-    end
+        title: measurable["Name"].to_s.strip,
+        target: measurable["Target"].to_f,
+        operator: measurable["Direction"].to_s,
+        format: measurable["Modifiers"].to_s,
+        owner: UserItem.new(
+          id: measurable.dig("Owner", "Id"),
+          name: measurable.dig("Owner", "Name")
+        ),
+        admin: UserItem.new(
+          id: measurable.dig("Admin", "Id"),
+          name: measurable.dig("Admin", "Name")
+        )
+      )
+    end.compact
   end
 
   # Retrieves details of a specific meeting
@@ -125,19 +130,15 @@ class Meeting
   #   client.meeting.details(1)
   #   #=> { id: 1, name: "Team Meeting", attendees: [...], issues: [...], todos: [...], metrics: [...] }
   def details(meeting_id, include_closed: false)
-    meeting = list.find { |m| m[:id] == meeting_id }
-    attendees = attendees(meeting_id)
-    issues = issues(meeting_id, include_closed: include_closed)
-    todos = todos(meeting_id, include_closed: include_closed)
-    measurables = metrics(meeting_id)
-    {
-      id: meeting[:id],
-      title: meeting[:name],
-      attendees: attendees,
-      issues: issues,
-      todos: todos,
-      metrics: measurables
-    }
+    meeting = list.find { |m| m.id == meeting_id }
+    MeetingDetails.new(
+      id: meeting.id,
+      title: meeting.title,
+      attendees: attendees(meeting_id),
+      issues: issues(meeting_id, include_closed: include_closed),
+      todos: todos(meeting_id, include_closed: include_closed),
+      metrics: metrics(meeting_id)
+    )
   end
 
   # Creates a new meeting
