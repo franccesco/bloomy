@@ -88,7 +88,7 @@ class Goal
   # @example
   #   client.goal.update(goal_id: 1, title: "Updated Goal", status: 'on')
   #   #=> true
-  def update(goal_id:, title:, accountable_user: user_id, status: nil)
+  def update(goal_id:, title: nil, accountable_user: user_id, status: nil)
     if status
       valid_status = {on: "OnTrack", off: "AtRisk", complete: "Complete"}
       status_key = status.downcase.to_sym
