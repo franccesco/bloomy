@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require "date"
-require_relative "../utils/get_user_id"
+require "bloomy/utils/get_user_id"
+require "bloomy/types/items"
 
 # Class to handle all the operations related to todos
 class Todo
@@ -18,20 +19,12 @@ class Todo
   #
   # @param user_id [Integer, nil] the ID of the user (default is the initialized user ID)
   # @param meeting_id [Integer, nil] the ID of the meeting
-  # @return [Array<Hash>] an array of hashes containing todo details
+  # @return [Array<TodoItem>] an array of TodoItem objects
   # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
   # @example
   #   # Fetch todos for the current user
   #   client.todo.list
-  #   #=> [{ id: 1, title: "New Todo", due_date: "2024-06-15", ... }]
-  #
-  #   # Fetch todos for a specific user
-  #   client.todo.list(user_id: 42)
-  #   # => [{ id: 1, title: "New Todo", due_date: "2024-06-15", ... }]
-  #
-  #   # Fetch todos for a specific meeting
-  #   client.todo.list(meeting_id: 99)
-  #   # => [{ id: 1, title: "New Todo", due_date: "2024-06-15", ... }]
+  #   #=> [#<TodoItem id: 1, title: "New Todo", due_date: "2024-06-15", ...>]
   def list(user_id: nil, meeting_id: nil)
     raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both." if user_id && meeting_id
 
@@ -43,7 +36,7 @@ class Todo
     end
 
     response.map do |todo|
-      {
+      TodoItem.new(
         id: todo["Id"],
         title: todo["Name"],
         notes_url: todo["DetailsUrl"],
@@ -51,7 +44,7 @@ class Todo
         created_at: todo["CreateTime"],
         completed_at: todo["CompleteTime"],
         status: todo["Complete"] ? "Complete" : "Incomplete"
-      }
+      )
     end
   end
 
@@ -62,23 +55,23 @@ class Todo
   # @param due_date [String, nil] the due date of the todo (optional)
   # @param user_id [Integer] the ID of the user responsible for the todo (default: initialized user ID)
   # @param notes [String, nil] additional notes for the todo (optional)
-  # @return [Hash] a hash containing the new todo's details
+  # @return [TodoItem] the newly created todo item
   # @example
   #   client.todo.create(title: "New Todo", meeting_id: 1, due_date: "2024-06-15")
-  #   #=> { id: 1, title: "New Todo", meeting_name: "Team Meeting", ... }
+  #   #=> #<TodoItem id: 1, title: "New Todo", due_date: "2024-06-15", ...>
   def create(title:, meeting_id:, due_date: nil, user_id: self.user_id, notes: nil)
     payload = {title: title, accountableUserId: user_id, notes: notes}
     payload[:dueDate] = due_date if due_date
     response = @conn.post("/api/v1/L10/#{meeting_id}/todos", payload.to_json).body
 
-    {
+    TodoItem.new(
       id: response["Id"],
       title: response["Name"],
-      meeting_title: response["Origin"],
-      meeting_id: response["OriginId"],
+      notes_url: response["DetailsUrl"],
       due_date: response["DueDate"],
-      notes_url: response["DetailsUrl"]
-    }
+      created_at: DateTime.now.to_s,
+      status: "Incomplete"
+    )
   end
 
   # Marks a todo as complete
@@ -98,10 +91,10 @@ class Todo
   # @param todo_id [Integer] the ID of the todo to update
   # @param title [String, nil] the new title of the todo (optional)
   # @param due_date [String, nil] the new due date of the todo (optional)
-  # @return [Hash] a hash containing the updated todo's details
+  # @return [TodoItem] the updated todo item
   # @example
-  #   todo.update(1, title: "Updated Todo", due_date: "2024-11-01T01:41:41.528Z")
-  #   #=> { id: 1, title: "Updated Todo", due_date: "2024-11-01T01:41:41.528Z", ... }
+  #   todo.update(todo_id: 1, title: "Updated Todo", due_date: "2024-11-01")
+  #   #=> #<TodoItem id: 1, title: "Updated Todo", due_date: "2024-11-01", ...>
   def update(todo_id:, title: nil, due_date: nil)
     payload = {}
     payload[:title] = title if title
@@ -112,37 +105,36 @@ class Todo
     response = @conn.put("/api/v1/todo/#{todo_id}", payload.to_json)
     raise "Failed to update todo. Status: #{response.status}" unless response.status == 200
 
-    {
+    TodoItem.new(
       id: todo_id,
       title: title,
       due_date: due_date,
-      updated_at: DateTime.now.to_s
-    }
+      created_at: nil,
+      status: "Incomplete"
+    )
   end
 
   # Retrieves the details of a specific todo item by its ID.
   #
   # @param todo_id [String] The ID of the todo item to retrieve.
-  # @return [Hash] A hash containing the details of the todo item.
+  # @return [TodoItem] The requested todo item
   # @raise [RuntimeError] If the request to retrieve the todo details fails.
   # @example
-  #  client.todo.details(1)
-  #  #=> { id: 1, title: "Updated Todo", due_date: "2024-11-01T01:41:41.528Z", ... }
+  #   client.todo.details(1)
+  #   #=> #<TodoItem id: 1, title: "Updated Todo", due_date: "2024-11-01", ...>
   def details(todo_id)
     response = @conn.get("/api/v1/todo/#{todo_id}")
     raise "Failed to get todo details. Status: #{response.status}" unless response.success?
 
     todo = response.body
-    {
+    TodoItem.new(
       id: todo["Id"],
-      meeting_id: todo["OriginId"],
-      meeting_title: todo["Origin"],
       title: todo["Name"],
       notes_url: todo["DetailsUrl"],
       due_date: todo["DueDate"],
       created_at: todo["CreateTime"],
       completed_at: todo["CompleteTime"],
       status: todo["Complete"] ? "Complete" : "Incomplete"
-    }
+    )
   end
 end
