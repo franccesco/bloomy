@@ -2,6 +2,7 @@
 
 require "json"
 require "bloomy/utils/get_user_id"
+require "bloomy/types/items"
 
 # Class to handle all the operations related to scorecards
 # @note
@@ -24,12 +25,12 @@ class Scorecard
   #   #=> { id: 123, week_number: 24, week_start: "2024-06-10", week_end: "2024-06-16" }
   def current_week
     response = @conn.get("weeks/current").body
-    {
+    WeekItem.new(
       id: response["Id"],
       week_number: response["ForWeekNumber"],
       week_start: response["LocalDate"]["Date"],
       week_end: response["ForWeek"]
-    }
+    )
   end
 
   # Retrieves the scorecards for a user or a meeting.
@@ -64,7 +65,7 @@ class Scorecard
     end
 
     scorecards = response["Scores"].map do |scorecard|
-      {
+      ScorecardItem.new(
         id: scorecard["Id"],
         measurable_id: scorecard["MeasurableId"],
         accountable_user_id: scorecard["AccountableUserId"],
@@ -74,16 +75,16 @@ class Scorecard
         week: scorecard["Week"],
         week_id: scorecard["ForWeek"],
         updated_at: scorecard["DateEntered"]
-      }
+      )
     end
 
     if week_offset
       week_data = current_week
-      week_id = week_data[:week_number] + week_offset
-      scorecards.select! { |scorecard| scorecard[:week_id] == week_id }
+      week_id = week_data.week_number + week_offset
+      scorecards.select! { |scorecard| scorecard.week_id == week_id }
     end
 
-    scorecards.select! { |scorecard| scorecard[:value] || show_empty } unless show_empty
+    scorecards.select! { |scorecard| scorecard.value || show_empty } unless show_empty
     scorecards
   end
 
