@@ -3,7 +3,8 @@
 require "bloomy/utils/get_user_id"
 require "bloomy/types/items"
 
-# Class to handle all the operations related to goals
+# Class to handle all the operations related to goals (also known as "rocks")
+# @note This class is already initialized via the client and usable as `client.goal.method`
 class Goal
   include Bloomy::Utilities::UserIdUtility
 
@@ -18,10 +19,19 @@ class Goal
   #
   # @param user_id [Integer] the ID of the user (default is the initialized user ID)
   # @param archived [Boolean] whether to include archived goals (default: false)
-  # @return [Array<GoalItem>] an array of GoalItem objects or a hash with active and archived goals
-  # @example
-  #  client.goal.list
-  #   #=> [{ id: 1, title: "Complete project", created_at: "2024-06-10", ... }, ...]
+  # @return [Array<GoalItem>, Hash] Returns either:
+  #   - An array of GoalItem objects if archived is false
+  #   - A hash with :active and :archived arrays of GoalItem objects if archived is true
+  # @example List active goals
+  #   client.goal.list
+  #   #=> [#<GoalItem id: 1, title: "Complete project", ...>]
+  #
+  # @example List both active and archived goals
+  #   client.goal.list(archived: true)
+  #   #=> {
+  #     active: [#<GoalItem id: 1, ...>],
+  #     archived: [#<GoalItem id: 2, ...>]
+  #   }
   def list(user_id = self.user_id, archived: false)
     active_goals = @conn.get("rocks/user/#{user_id}?include_origin=true").body.map do |goal|
       GoalItem.new(
