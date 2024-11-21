@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require "bloomy/utils/get_user_id"
+require "bloomy/types/items"
 
 # Class to handle all the operations related to goals
 class Goal
   include Bloomy::Utilities::UserIdUtility
+
   # Initializes a new Goal instance
   #
   # @param conn [Object] the connection object to interact with the API
@@ -16,24 +18,26 @@ class Goal
   #
   # @param user_id [Integer] the ID of the user (default is the initialized user ID)
   # @param archived [Boolean] whether to include archived goals (default: false)
-  # @return [Array<Hash>] an array of hashes containing goal details or a hash with active and archived goals
+  # @return [Array<GoalItem>] an array of GoalItem objects or a hash with active and archived goals
   # @example
   #  client.goal.list
   #   #=> [{ id: 1, title: "Complete project", created_at: "2024-06-10", ... }, ...]
   def list(user_id = self.user_id, archived: false)
     active_goals = @conn.get("rocks/user/#{user_id}?include_origin=true").body.map do |goal|
-      {
+      GoalItem.new(
         id: goal["Id"],
+        user_id: goal["Owner"]["Id"],
+        user_name: goal["Owner"]["Name"],
         title: goal["Name"],
         created_at: goal["CreateTime"],
         due_date: goal["DueDate"],
         status: goal["Complete"] ? "Completed" : "Incomplete",
         meeting_id: goal["Origins"].empty? ? nil : goal["Origins"][0]["Id"],
         meeting_title: goal["Origins"].empty? ? nil : goal["Origins"][0]["Name"]
-      }
+      )
     end
 
-    archived ? {active: active_goals, archived: get_archived_goals(self.user_id)} : active_goals
+    archived ? {active: active_goals, archived: get_archived_goals(user_id)} : active_goals
   end
 
   # Creates a new goal
@@ -41,22 +45,23 @@ class Goal
   # @param title [String] the title of the new goal
   # @param meeting_id [Integer] the ID of the meeting associated with the goal
   # @param user_id [Integer] the ID of the user responsible for the goal (default: initialized user ID)
-  # @return [Hash] a hash containing the new goal's details
+  # @return [GoalItem] the newly created goal
   # @example
   #   client.goal.create(title: "New Goal", meeting_id: 1)
   #   #=> { goal_id: 1, title: "New Goal", meeting_id: 1, ... }
   def create(title:, meeting_id:, user_id: self.user_id)
     payload = {title: title, accountableUserId: user_id}.to_json
     response = @conn.post("L10/#{meeting_id}/rocks", payload).body
-    {
-      goal_id: response["Id"],
+
+    GoalItem.new(
+      id: response["Id"],
       title: title,
       meeting_id: meeting_id,
       meeting_title: response["Origins"][0]["Name"],
       user_id: user_id,
       user_name: response["Owner"]["Name"],
       created_at: response["CreateTime"]
-    }
+    )
   end
 
   # Deletes a goal
@@ -123,20 +128,20 @@ class Goal
   # Retrieves all archived goals for a specific user (private method)
   #
   # @param user_id [Integer] the ID of the user (default is the initialized user ID)
-  # @return [Array<Hash>] an array of hashes containing archived goal details
+  # @return [Array<GoalItem>] an array of GoalItem objects containing archived goal details
   # @example
   #   goal.send(:get_archived_goals)
   #   #=> [{ id: 1, title: "Archived Goal", created_at: "2024-06-10", ... }, ...]
   def get_archived_goals(user_id = self.user_id)
     response = @conn.get("archivedrocks/user/#{user_id}").body
     response.map do |goal|
-      {
+      GoalItem.new(
         id: goal["Id"],
         title: goal["Name"],
         created_at: goal["CreateTime"],
         due_date: goal["DueDate"],
         status: goal["Complete"] ? "Complete" : "Incomplete"
-      }
+      )
     end
   end
 end
