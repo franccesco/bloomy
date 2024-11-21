@@ -55,11 +55,12 @@ class Goal
 
     GoalItem.new(
       id: response["Id"],
+      user_id: user_id,
+      user_name: response["Owner"]["Name"],
       title: title,
       meeting_id: meeting_id,
       meeting_title: response["Origins"][0]["Name"],
-      user_id: user_id,
-      user_name: response["Owner"]["Name"],
+      status: {complete: 2, on: 1, off: 0}.key(response["Completion"]).to_s,
       created_at: response["CreateTime"]
     )
   end
