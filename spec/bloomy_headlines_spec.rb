@@ -29,22 +29,24 @@ RSpec.describe "Headline Operations" do
     it "gets headline details" do
       headline = @client.headline.details(@headline_id)
 
-      expect(headline[:title]).to eq("Test Headline")
-      expect(headline[:meeting_details][:id]).to eq(@meeting_id)
-      expect(headline[:meeting_details][:title]).to eq("Test Meeting")
-      expect(headline[:notes_url]).not_to be_nil
+      expect(headline.title).to eq("Test Headline")
+      expect(headline.meeting_details.id).to eq(@meeting_id)
+      expect(headline.meeting_details.title).to eq("Test Meeting")
+      expect(headline.notes_url).not_to be_nil
     end
 
     it "gets user headlines" do
       headlines = @client.headline.list
 
       expect(headlines).not_to be_empty
+      expect(headlines.first).to be_a(HeadlineItem)
     end
 
     it "gets meeting headlines" do
       headlines = @client.headline.list(meeting_id: @meeting_id)
 
       expect(headlines).not_to be_empty
+      expect(headlines.first).to be_a(HeadlineItem)
     end
 
     it "deletes a headline" do

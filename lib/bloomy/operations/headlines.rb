@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "bloomy/utils/get_user_id"
+require "bloomy/types/items"
 
 class Headline
   include Bloomy::Utilities::UserIdUtility
@@ -17,18 +18,18 @@ class Headline
   # @param title [String] the title of the headline
   # @param owner_id [Integer] the ID of the headline owner
   # @param notes [String] additional notes for the headline
-  # @return [Hash] the created headline details
+  # @return [HeadlineItem] the created headline details
   def create(meeting_id:, title:, owner_id: user_id, notes: nil)
     response = @conn.post("/api/v1/L10/#{meeting_id}/headlines",
       {title: title, ownerId: owner_id, notes: notes}.to_json)
     raise "Failed to create headline" unless response.status == 200
 
-    {
+    HeadlineItem.new(
       id: response.body["Id"],
       title: response.body["Name"],
-      owner_id: response.body["OwnerId"],
+      owner_details: UserItem.new(id: response.body["OwnerId"]),
       notes_url: response.body["DetailsUrl"]
-    }
+    )
   end
 
   # Updates a headline
@@ -45,27 +46,27 @@ class Headline
   # Get headline details
   #
   # @param headline_id [Integer] the ID of the headline
-  # @return [Hash] the details of the headline
+  # @return [HeadlineItem] the details of the headline
   def details(headline_id)
     response = @conn.get("/api/v1/headline/#{headline_id}?Include_Origin=true")
     raise "Failed to get headline details" unless response.status == 200
 
-    {
+    HeadlineItem.new(
       id: response.body["Id"],
       title: response.body["Name"],
       notes_url: response.body["DetailsUrl"],
-      meeting_details: {
+      meeting_details: MeetingItem.new(
         id: response.body["OriginId"],
         title: response.body["Origin"]
-      },
-      owner_details: {
+      ),
+      owner_details: UserItem.new(
         id: response.body["Owner"]["Id"],
         name: response.body["Owner"]["Name"]
-      },
+      ),
       archived: response.body["Archived"],
       created_at: response.body["CreateTime"],
       closed_at: response.body["CloseTime"]
-    }
+    )
   end
 
   # Get headlines for a user or a meeting.
@@ -73,7 +74,7 @@ class Headline
   # @param user_id [Integer, nil] the ID of the user (defaults to initialized user_id)
   # @param meeting_id [Integer, nil] the ID of the meeting
   # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
-  # @return [Array<Hash>] the list of headlines
+  # @return [Array<HeadlineItem>] the list of headlines
   # @example
   #  # Fetch headlines for a user
   #  client.headline.list
@@ -91,21 +92,21 @@ class Headline
     raise "Failed to list headlines" unless response.success?
 
     response.body.map do |headline|
-      {
+      HeadlineItem.new(
         id: headline["Id"],
         title: headline["Name"],
-        meeting_details: {
+        meeting_details: MeetingItem.new(
           id: headline["OriginId"],
           title: headline["Origin"]
-        },
-        owner_details: {
+        ),
+        owner_details: UserItem.new(
           id: headline["Owner"]["Id"],
           name: headline["Owner"]["Name"]
-        },
+        ),
         archived: headline["Archived"],
         created_at: headline["CreateTime"],
         closed_at: headline["CloseTime"]
-      }
+      )
     end
   end
 
