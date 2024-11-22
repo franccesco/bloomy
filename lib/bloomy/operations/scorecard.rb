@@ -20,10 +20,10 @@ module Bloomy
 
     # Retrieves the current week details
     #
-    # @return [Hash] a hash containing current week details
+    # @return [Types::WeekItem] an object containing current week details
     # @example
     #   client.scorecard.current_week
-    #   #=> { id: 123, week_number: 24, week_start: "2024-06-10", week_end: "2024-06-16" }
+    #   #=> #<Types::WeekItem @id=123, @week_number=24, @week_start="2024-06-10", @week_end="2024-06-16">
     def current_week
       response = @conn.get("weeks/current").body
       Types::WeekItem.new(
@@ -41,7 +41,7 @@ module Bloomy
     # @param show_empty [Boolean] whether to include scores with nil values (default: false)
     # @param week_offset [Integer, nil] offset for the week number to filter scores
     # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
-    # @return [Array<Hash>] an array of hashes containing scorecard details
+    # @return [Array<Types::ScorecardItem>] an array of scorecard items
     # @example
     #   # Fetch scorecards for the current user
     #   client.scorecard.list
@@ -91,17 +91,13 @@ module Bloomy
 
     # Updates the score for a measurable item for a specific week.
     #
-    # @param measurable_id [Integer] the ID of the measurable item.
-    # @param score [Numeric] the score to be assigned to the measurable item.
-    # @param week_offset [Integer] the number of weeks to offset from the current week (default is 0).
-    # @return [Boolean] true if the score was successfully updated, false otherwise.
+    # @param measurable_id [Integer] the ID of the measurable item
+    # @param score [Numeric] the score to be assigned to the measurable item
+    # @param week_offset [Integer] the number of weeks to offset from the current week (default: 0)
+    # @return [Boolean] true if the score was successfully updated
     # @example
-    #  client.scorecard.score(measurable_id: 123, score: 5)
-    #  #=> true
-    # @note
-    #  The `week_offset` parameter is useful when updating scores for previous weeks.
-    #  For example, to update the score for the previous week, you can set `week_offset` to -1.
-    #  To update a future week's score, you can set `week_offset` to a positive value.
+    #   client.scorecard.score(measurable_id: 123, score: 5)
+    #   #=> true
     def score(measurable_id:, score:, week_offset: 0)
       week_data = current_week
       week_id = week_data[:week_number] + week_offset
