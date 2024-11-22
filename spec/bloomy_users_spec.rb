@@ -8,7 +8,7 @@ RSpec.describe "User Operations" do
   context "when interacting with the users API" do
     it "returns the basic user details" do
       user_details = @client.user.details
-      expect(user_details).to be_a(UserItem)
+      expect(user_details).to be_a(Bloomy::Types::UserItem)
       expect(user_details.name).to be_a(String)
       expect(user_details.id).to be_a(Integer)
       expect(user_details.image_url).to be_a(String)
@@ -18,7 +18,7 @@ RSpec.describe "User Operations" do
 
     it "returns the user details with direct reports" do
       user_details = @client.user.details(direct_reports: true)
-      expect(user_details).to be_a(UserItem)
+      expect(user_details).to be_a(Bloomy::Types::UserItem)
       expect(user_details.name).to be_a(String)
       expect(user_details.id).to be_a(Integer)
       expect(user_details.image_url).to be_a(String)
@@ -27,7 +27,7 @@ RSpec.describe "User Operations" do
 
     it "returns the user details with positions" do
       user_details = @client.user.details(positions: true)
-      expect(user_details).to be_a(UserItem)
+      expect(user_details).to be_a(Bloomy::Types::UserItem)
       expect(user_details.name).to be_a(String)
       expect(user_details.id).to be_a(Integer)
       expect(user_details.image_url).to be_a(String)
@@ -36,7 +36,7 @@ RSpec.describe "User Operations" do
 
     it "returns the direct reports of the user" do
       direct_reports = @client.user.direct_reports
-      expect(direct_reports).to all(be_a(UserItem))
+      expect(direct_reports).to all(be_a(Bloomy::Types::UserItem))
       direct_reports.each do |report|
         expect(report.name).to be_a(String)
         expect(report.id).to be_a(Integer)
@@ -46,7 +46,7 @@ RSpec.describe "User Operations" do
 
     it "returns the positions of the user" do
       positions = @client.user.positions
-      expect(positions).to all(be_a(UserItem))
+      expect(positions).to all(be_a(Bloomy::Types::UserItem))
       positions.each do |position|
         expect(position.name).to be_a(String)
         expect(position.id).to be_a(Integer)
@@ -55,7 +55,7 @@ RSpec.describe "User Operations" do
 
     it "returns the users that match the search term" do
       users = @client.user.search("fran")
-      expect(users).to all(be_a(UserItem))
+      expect(users).to all(be_a(Bloomy::Types::UserItem))
       users.each do |user|
         expect(user.id).to be_a(Integer)
         expect(user.name).to be_a(String)
