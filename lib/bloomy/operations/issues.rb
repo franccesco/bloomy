@@ -25,20 +25,16 @@ module Bloomy
     # @raise [ApiError] When the API request fails or returns invalid data
     def details(issue_id)
       response = @conn.get("issues/#{issue_id}").body
-      Types::IssueDetails.new(
+      Types::IssueItem.new(
         id: response["Id"],
         title: response["Name"],
         notes_url: response["DetailsUrl"],
         created_at: response["CreateTime"],
         completed_at: response["CloseTime"],
-        meeting_details: Types::MeetingItem.new(
-          id: response["OriginId"],
-          title: response["Origin"]
-        ),
-        owner_details: Types::UserItem.new(
-          id: response["Owner"]["Id"],
-          name: response["Owner"]["Name"]
-        )
+        meeting_id: response["OriginId"],
+        meeting_title: response["Origin"],
+        user_id: response["Owner"]["Id"],
+        user_name: response["Owner"]["Name"]
       )
     end
 
