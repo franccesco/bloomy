@@ -21,7 +21,7 @@ RSpec.describe "Issue Operations" do
     it "retrieves an issue" do
       details = @client.issue.details(@issue_id)
       expect(details.title).to eq("Test Issue")
-      expect(details.meeting_details.id).to eq(@meeting_id)
+      expect(details.meeting_id).to eq(@meeting_id)
       expect(details.notes_url).not_to be_nil
     end
 
