@@ -39,7 +39,8 @@ module Bloomy
       :attendees,
       :issues,
       :todos,
-      :metrics
+      :metrics,
+      keyword_init: true
     )
 
     MetricItem = Struct.new(
