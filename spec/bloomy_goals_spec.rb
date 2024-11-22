@@ -14,76 +14,68 @@ RSpec.describe "Goal Operations" do
   context "when interacting with goals API" do
     it "returns user goals" do
       goals = @client.goal.list
-      expect(goals).to include(
-        {
-          id: a_kind_of(Integer),
-          title: a_kind_of(String),
-          created_at: a_kind_of(String),
-          due_date: a_kind_of(String),
-          status: eq("Completed").or(eq("Incomplete")),
-          meeting_id: a_kind_of(Integer),
-          meeting_title: a_kind_of(String)
-        }
-      )
+      expect(goals).to all(be_a(Bloomy::Types::GoalItem))
+
+      sample_goal = goals.first
+      expect(sample_goal.id).to be_a(Integer)
+      expect(sample_goal.title).to be_a(String)
+      expect(sample_goal.created_at).to be_a(String)
+      expect(sample_goal.due_date).to be_a(String)
+      expect(sample_goal.status).to match(/Completed|Incomplete/)
+      expect(sample_goal.meeting_id).to be_a(Integer)
+      expect(sample_goal.meeting_title).to be_a(String)
     end
 
     it "returns user active & archived goals" do
       goals = @client.goal.list(archived: true)
-      expect(goals).to include(
-        {
-          active: a_kind_of(Array),
-          archived: a_kind_of(Array)
-        }
-      )
+      expect(goals[:active]).to all(be_a(Bloomy::Types::GoalItem))
+      expect(goals[:archived]).to all(be_a(Bloomy::Types::GoalItem))
     end
 
     it "tests the created goal" do
-      expect(@created_goal).to include(
-        {
-          goal_id: a_kind_of(Integer),
-          title: a_kind_of(String),
-          meeting_id: a_kind_of(Integer),
-          meeting_title: a_kind_of(String),
-          user_id: a_kind_of(Integer),
-          user_name: a_kind_of(String),
-          created_at: a_kind_of(String)
-        }
-      )
+      expect(@created_goal).to be_a(Bloomy::Types::GoalItem)
+      expect(@created_goal.id).to be_a(Integer)
+      expect(@created_goal.title).to be_a(String)
+      expect(@created_goal.meeting_id).to be_a(Integer)
+      expect(@created_goal.meeting_title).to be_a(String)
+      expect(@created_goal.user_id).to be_a(Integer)
+      expect(@created_goal.user_name).to be_a(String)
+      expect(@created_goal.created_at).to be_a(String)
 
-      expect { DateTime.parse(@created_goal[:created_at]) }.not_to raise_error
+      expect { DateTime.parse(@created_goal.created_at) }.not_to raise_error
     end
 
     it "updates the created goal" do
-      response = @client.goal.update(goal_id: @created_goal[:goal_id], title: "On Goal", status: "on")
+      response = @client.goal.update(goal_id: @created_goal.id, title: "On Goal", status: "on")
       expect(response).to be true
-      response = @client.goal.update(goal_id: @created_goal[:goal_id], title: "Off Goal", status: "off")
+      response = @client.goal.update(goal_id: @created_goal.id, title: "Off Goal", status: "off")
       expect(response).to be true
-      response = @client.goal.update(goal_id: @created_goal[:goal_id], title: "Complete Goal", status: "complete")
+      response = @client.goal.update(goal_id: @created_goal.id, title: "Complete Goal", status: "complete")
       expect(response).to be true
     end
 
     it "archives the created goal" do
       # Archive the goal
-      response = @client.goal.archive(@created_goal[:goal_id])
+      response = @client.goal.archive(@created_goal.id)
       expect(response).to be true
 
       # Verify goal appears in archived list
       goals = @client.goal.list(archived: true)
-      expect(goals[:archived]).to include(hash_including(id: @created_goal[:goal_id]))
+      expect(goals[:archived].map(&:id)).to include(@created_goal.id)
     end
 
     it "restores the archived goal" do
       # Restore the goal
-      response = @client.goal.restore(@created_goal[:goal_id])
+      response = @client.goal.restore(@created_goal.id)
       expect(response).to be true
 
       # Verify goal appears in active list
       goals = @client.goal.list(archived: true)
-      expect(goals[:active]).to include(hash_including(id: @created_goal[:goal_id]))
+      expect(goals[:active].map(&:id)).to include(@created_goal.id)
     end
 
     it "deletes the created goal" do
-      response = @client.goal.delete(@created_goal[:goal_id])
+      response = @client.goal.delete(@created_goal.id)
       expect(response).to be true
     end
   end

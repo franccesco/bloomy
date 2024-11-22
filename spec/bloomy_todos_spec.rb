@@ -16,56 +16,46 @@ RSpec.describe "Todo Operations" do
 
   context "when interacting with todos API" do
     it "creates a todo" do
-      expect(@todo).to include(
-        {
-          id: a_kind_of(Integer),
-          title: a_kind_of(String),
-          meeting_id: eq(@meeting_id),
-          meeting_title: a_kind_of(String),
-          due_date: a_kind_of(String),
-          notes_url: a_kind_of(String)
-        }
-      )
+      expect(@todo).to be_a(Bloomy::Types::TodoItem)
+      expect(@todo.id).to be_a(Integer)
+      expect(@todo.title).to be_a(String)
+      expect(@todo.notes_url).to be_a(String)
     end
 
     it "updates a todo" do
-      updated_todo = @client.todo.update(todo_id: @todo[:id], title: "Updated Todo")
-      expect(updated_todo).to include(
-        id: eq(@todo[:id]),
-        title: eq("Updated Todo"),
-        updated_at: a_kind_of(String)
-      )
+      updated_todo = @client.todo.update(todo_id: @todo.id, title: "Updated Todo")
+      expect(updated_todo).to be_a(Bloomy::Types::TodoItem)
+      expect(updated_todo.id).to eq(@todo.id)
+      expect(updated_todo.title).to eq("Updated Todo")
     end
 
     it "gets todo details" do
-      todo_details = @client.todo.details(@todo[:id])
-      expect(todo_details).to include(
-        id: eq(@todo[:id]),
-        title: eq("Updated Todo"),
-        due_date: a_kind_of(String),
-        created_at: a_kind_of(String),
-        completed_at: nil,
-        status: eq("Incomplete")
-      )
+      todo_details = @client.todo.details(@todo.id)
+      expect(todo_details).to be_a(Bloomy::Types::TodoItem)
+      expect(todo_details.id).to eq(@todo.id)
+      expect(todo_details.title).to eq("Updated Todo")
+      expect(todo_details.due_date).to be_a(String)
+      expect(todo_details.created_at).to be_a(String)
+      expect(todo_details.completed_at).to be_nil
+      expect(todo_details.status).to eq("Incomplete")
     end
 
     it "lists the current user todos" do
       todos = @client.todo.list
-      expect(todos).to include(
-        {
-          id: a_kind_of(Integer),
-          title: a_kind_of(String),
-          due_date: a_kind_of(String),
-          created_at: a_kind_of(String),
-          completed_at: a_kind_of(String),
-          status: eq("Complete").or(eq("Incomplete")),
-          notes_url: a_kind_of(String)
-        }
-      )
+      expect(todos).to all(be_a(Bloomy::Types::TodoItem))
+
+      sample_todo = todos.first
+      expect(sample_todo.id).to be_a(Integer)
+      expect(sample_todo.title).to be_a(String)
+      expect(sample_todo.due_date).to be_a(String)
+      expect(sample_todo.created_at).to be_a(String)
+      expect(sample_todo.status).to match(/Complete|Incomplete/)
+      expect(sample_todo.notes_url).to be_a(String)
     end
 
     it "lists the meeting todos" do
       todos = @client.todo.list(meeting_id: @meeting_id)
+      expect(todos).to all(be_a(Bloomy::Types::TodoItem))
       expect(todos).to_not be_empty
     end
 

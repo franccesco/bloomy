@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
 require "faraday"
-require_relative "operations/users"
-require_relative "operations/todos"
-require_relative "operations/goals"
-require_relative "operations/meetings"
-require_relative "operations/scorecard"
-require_relative "operations/issues"
-require_relative "operations/headlines"
-require_relative "utils/plugin_loader"
+
+require "bloomy/types/items"
+require "bloomy/operations/users"
+require "bloomy/operations/todos"
+require "bloomy/operations/goals"
+require "bloomy/operations/meetings"
+require "bloomy/operations/scorecard"
+require "bloomy/operations/issues"
+require "bloomy/operations/headlines"
+require "bloomy/utils/plugin_loader"
 
 module Bloomy
   # The Client class is the main entry point for interacting with the Bloomy API.

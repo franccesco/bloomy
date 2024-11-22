@@ -13,12 +13,20 @@ RSpec.describe "Meeting Operations" do
   context "when interacting with meetings API" do
     it "returns a list of meetings" do
       meetings = @client.meeting.list
-      expect(meetings).to all(include(:id, :name))
+      expect(meetings).to all(be_a(Bloomy::Types::MeetingItem))
+      expect(meetings.first).to have_attributes(
+        id: be_kind_of(Integer),
+        title: be_kind_of(String)
+      )
     end
 
     it "returns a list of meeting attendees" do
       attendees = @client.meeting.attendees(@meeting_id)
-      expect(attendees).to all(include(:name, :id))
+      expect(attendees).to all(be_a(Bloomy::Types::MeetingAttendee))
+      expect(attendees.first).to have_attributes(
+        id: be_kind_of(Integer),
+        name: be_kind_of(String)
+      )
     end
 
     it "returns a list of meeting issues" do
@@ -31,14 +39,35 @@ RSpec.describe "Meeting Operations" do
       expect(todos).to all(include(:id, :title, :due_date, :details_url, :completed_at, :owner))
     end
 
-    it "returns a list of meeting measurables" do
+    it "returns a list of meeting metrics" do
       metrics = @client.meeting.metrics(@meeting_id)
-      expect(metrics).to all(include(:id, :name, :target, :operator, :format, :owner, :admin))
+      expect(metrics).to all(be_a(Bloomy::Types::MeetingMetric))
+
+      # Skip detailed attribute checking if no metrics exist
+      if metrics.any?
+        expect(metrics.first).to have_attributes(
+          id: be_kind_of(Integer),
+          title: be_kind_of(String),
+          target: be_kind_of(Numeric),
+          operator: be_kind_of(String),
+          format: be_kind_of(String),
+          owner: be_a(UserItem),
+          admin: be_a(UserItem)
+        )
+      end
     end
 
     it "returns meeting details" do
       details = @client.meeting.details(@meeting_id)
-      expect(details).to include(:id, :title, :attendees, :issues, :todos, :metrics)
+      expect(details).to be_a(Bloomy::Types::MeetingDetails)
+      expect(details).to have_attributes(
+        id: be_kind_of(Integer),
+        title: be_kind_of(String),
+        attendees: all(be_a(Bloomy::Types::MeetingAttendee)),
+        issues: be_kind_of(Array),
+        todos: be_kind_of(Array),
+        metrics: all(be_a(Bloomy::Types::MeetingMetric))
+      )
     end
   end
 end
