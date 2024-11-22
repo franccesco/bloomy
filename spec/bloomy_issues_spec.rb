@@ -29,14 +29,14 @@ RSpec.describe "Issue Operations" do
       issues = @client.issue.list
       expect(issues).to be_an_instance_of(Array)
       expect(issues).not_to be_empty
-      expect(issues.first).to be_an_instance_of(IssueItem)
+      expect(issues.first).to be_an_instance_of(Bloomy::Types::IssueItem)
     end
 
     it "lists meeting issues" do
       issues = @client.issue.list(meeting_id: @meeting_id)
       expect(issues).to be_an_instance_of(Array)
       expect(issues).not_to be_empty
-      expect(issues.first).to be_an_instance_of(IssueItem)
+      expect(issues.first).to be_an_instance_of(Bloomy::Types::IssueItem)
     end
 
     it "solves an issue" do
