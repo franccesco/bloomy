@@ -36,7 +36,7 @@ module Bloomy
     #   #=> [{ name: "John Doe", id: 1 }, ...]
     def attendees(meeting_id)
       response = @conn.get("L10/#{meeting_id}/attendees").body
-      response.map { |attendee| Types::MeetingAttendee.new(id: attendee["Id"], name: attendee["Name"]) }
+      response.map { |attendee| Types::UserItem.new(id: attendee["Id"], name: attendee["Name"]) }
     end
 
     # Lists all issues for a specific meeting
