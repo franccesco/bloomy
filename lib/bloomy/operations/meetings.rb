@@ -75,17 +75,19 @@ module Bloomy
     def todos(meeting_id, include_closed: false)
       response = @conn.get("L10/#{meeting_id}/todos?INCLUDE_CLOSED=#{include_closed}").body
       response.map do |todo|
-        {
-          id: todo["Id"],
-          title: todo["Name"],
-          due_date: todo["DueDate"],
-          details_url: todo["DetailsUrl"],
-          completed_at: todo["CompleteTime"],
-          owner: {
-            id: todo["Owner"]["Id"],
-            name: todo["Owner"]["Name"]
+        Types::TodoItem.new(
+          {
+            id: todo["Id"],
+            title: todo["Name"],
+            due_date: todo["DueDate"],
+            notes_url: todo["DetailsUrl"],
+            status: todo["Complete"] ? "Complete" : "Incomplete",
+            created_at: todo["CreateTime"],
+            completed_at: todo["CompleteTime"],
+            user_id: todo.dig("Owner", "Id"),
+            user_name: todo.dig("Owner", "Name")
           }
-        }
+        )
       end
     end
 
