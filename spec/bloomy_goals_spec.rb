@@ -14,7 +14,7 @@ RSpec.describe "Goal Operations" do
   context "when interacting with goals API" do
     it "returns user goals" do
       goals = @client.goal.list
-      expect(goals).to all(be_a(GoalItem))
+      expect(goals).to all(be_a(Bloomy::Types::GoalItem))
 
       sample_goal = goals.first
       expect(sample_goal.id).to be_a(Integer)
@@ -28,12 +28,12 @@ RSpec.describe "Goal Operations" do
 
     it "returns user active & archived goals" do
       goals = @client.goal.list(archived: true)
-      expect(goals[:active]).to all(be_a(GoalItem))
-      expect(goals[:archived]).to all(be_a(GoalItem))
+      expect(goals[:active]).to all(be_a(Bloomy::Types::GoalItem))
+      expect(goals[:archived]).to all(be_a(Bloomy::Types::GoalItem))
     end
 
     it "tests the created goal" do
-      expect(@created_goal).to be_a(GoalItem)
+      expect(@created_goal).to be_a(Bloomy::Types::GoalItem)
       expect(@created_goal.id).to be_a(Integer)
       expect(@created_goal.title).to be_a(String)
       expect(@created_goal.meeting_id).to be_a(Integer)
