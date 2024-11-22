@@ -2,7 +2,6 @@
 
 require "date"
 require "bloomy/utils/get_user_id"
-require "bloomy/types/items"
 
 module Bloomy
   # Class to handle all the operations related to todos

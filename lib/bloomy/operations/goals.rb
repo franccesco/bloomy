@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "bloomy/utils/get_user_id"
-require "bloomy/types/items"
 
 module Bloomy
   # Class to handle all the operations related to goals (also known as "rocks")

@@ -2,7 +2,6 @@
 
 require "json"
 require "bloomy/utils/get_user_id"
-require "bloomy/types/items"
 
 module Bloomy
   # Handles CRUD operations for issues in the system.
