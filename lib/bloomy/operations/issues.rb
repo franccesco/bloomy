@@ -5,23 +5,25 @@ require "bloomy/utils/get_user_id"
 require "bloomy/types/items"
 
 module Bloomy
-  # Class to handle all the operations related to issues
+  # Handles CRUD operations for issues in the system.
+  # Provides functionality to create, retrieve, list, and solve issues
+  # associated with meetings and users.
   class Issue
     include Bloomy::Utilities::UserIdUtility
+
     # Initializes a new Issue instance
     #
-    # @param conn [Object] the connection object to interact with the API
+    # @param conn [Faraday::Connection] Connection object for making API requests
+    # @return [Issue] New instance of Issue
     def initialize(conn)
       @conn = conn
     end
 
-    # Retrieves details of a specific issue
+    # Retrieves detailed information about a specific issue
     #
-    # @param issue_id [Integer] the ID of the issue
-    # @return [IssueDetails] an IssueDetails struct containing issue details
-    # @example
-    #   issue.details(123)
-    #   #=> #<IssueDetails id=123 title="Issue Title" notes_url="http://details.url" ...>
+    # @param issue_id [Integer] Unique identifier of the issue
+    # @return [Types::IssueDetails] Detailed information about the issue
+    # @raise [ApiError] When the API request fails or returns invalid data
     def details(issue_id)
       response = @conn.get("issues/#{issue_id}").body
       Types::IssueDetails.new(
@@ -41,21 +43,13 @@ module Bloomy
       )
     end
 
-    # Lists issues for a specific user or meeting
+    # Lists issues filtered by user or meeting
     #
-    # @param user_id [Integer, nil] the ID of the user (defaults to initialized user_id)
-    # @param meeting_id [Integer, nil] the ID of the meeting
-    # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
-    # @return [Array<IssueItem>] an array of IssueItem structs containing issues details
-    # @example
-    #   # Fetch issues for the current user
-    #   issue.list
-    #
-    #   # Fetch issues for a specific user
-    #   issue.list(user_id: 42)
-    #
-    #   # Fetch issues for a specific meeting
-    #   issue.list(meeting_id: 99)
+    # @param user_id [Integer, nil] Unique identifier of the user (optional)
+    # @param meeting_id [Integer, nil] Unique identifier of the meeting (optional)
+    # @return [Array<Types::IssueItem>] List of issues matching the filter criteria
+    # @raise [ArgumentError] When both user_id and meeting_id are provided
+    # @raise [ApiError] When the API request fails or returns invalid data
     def list(user_id: nil, meeting_id: nil)
       if user_id && meeting_id
         raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both."
@@ -75,28 +69,25 @@ module Bloomy
       end
     end
 
-    # Marks an issue as solved
+    # Marks an issue as completed/solved
     #
-    # @param issue_id [Integer] the ID of the issue
-    # @return [Boolean] true if the operation was successful, false otherwise
-    # @example
-    #   issue.solve(123)
-    #   #=> true
+    # @param issue_id [Integer] Unique identifier of the issue to be solved
+    # @return [Boolean] true if issue was successfully solved, false otherwise
+    # @raise [ApiError] When the API request fails
     def solve(issue_id)
       response = @conn.post("issues/#{issue_id}/complete", {complete: true}.to_json)
       response.success?
     end
 
-    # Creates a new issue
+    # Creates a new issue in the system
     #
-    # @param meeting_id [Integer] the ID of the meeting associated with the issue
-    # @param title [String] the title of the new issue
-    # @param user_id [Integer] the ID of the user responsible for the issue (default: initialized user ID)
-    # @param notes [String, nil] the notes for the issue (optional)
-    # @return [IssueItem] an IssueItem struct containing the new issue's ID and title
-    # @example
-    #   issue.create(meeting_id: 123, title: "New Issue")
-    #   #=> #<IssueItem id=789 title="New Issue" ...>
+    # @param meeting_id [Integer] Unique identifier of the associated meeting
+    # @param title [String] Title/name of the issue
+    # @param user_id [Integer] Unique identifier of the issue owner (defaults to current user)
+    # @param notes [String, nil] Additional notes or description for the issue (optional)
+    # @return [Types::IssueItem] Newly created issue details
+    # @raise [ApiError] When the API request fails or returns invalid data
+    # @raise [ArgumentError] When required parameters are missing or invalid
     def create(meeting_id:, title:, user_id: self.user_id, notes: nil)
       response = @conn.post("issues/create", {title: title, meetingid: meeting_id, ownerid: user_id, notes: notes}.to_json)
       Types::IssueItem.new(
