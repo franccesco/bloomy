@@ -36,7 +36,7 @@ module Bloomy
     #   #=> [{ name: "John Doe", id: 1 }, ...]
     def attendees(meeting_id)
       response = @conn.get("L10/#{meeting_id}/attendees").body
-      response.map { |attendee| Types::MeetingAttendee.new(id: attendee["Id"], name: attendee["Name"]) }
+      response.map { |attendee| Types::UserItem.new(id: attendee["Id"], name: attendee["Name"]) }
     end
 
     # Lists all issues for a specific meeting
@@ -50,17 +50,17 @@ module Bloomy
     def issues(meeting_id, include_closed: false)
       response = @conn.get("L10/#{meeting_id}/issues?include_resolved=#{include_closed}").body
       response.map do |issue|
-        {
+        Types::IssueItem.new(
           id: issue["Id"],
           title: issue["Name"],
+          notes_url: issue["DetailsUrl"],
           created_at: issue["CreateTime"],
-          closed_at: issue["CloseTime"],
-          details_url: issue["DetailsUrl"],
-          owner: {
-            id: issue["Owner"]["Id"],
-            name: issue["Owner"]["Name"]
-          }
-        }
+          completed_at: issue["CloseTime"],
+          user_id: issue.dig("Owner", "Id"),
+          user_name: issue.dig("Owner", "Name"),
+          meeting_id: meeting_id,
+          meeting_title: issue["Origin"]
+        )
       end
     end
 
@@ -75,17 +75,19 @@ module Bloomy
     def todos(meeting_id, include_closed: false)
       response = @conn.get("L10/#{meeting_id}/todos?INCLUDE_CLOSED=#{include_closed}").body
       response.map do |todo|
-        {
-          id: todo["Id"],
-          title: todo["Name"],
-          due_date: todo["DueDate"],
-          details_url: todo["DetailsUrl"],
-          completed_at: todo["CompleteTime"],
-          owner: {
-            id: todo["Owner"]["Id"],
-            name: todo["Owner"]["Name"]
+        Types::TodoItem.new(
+          {
+            id: todo["Id"],
+            title: todo["Name"],
+            due_date: todo["DueDate"],
+            notes_url: todo["DetailsUrl"],
+            status: todo["Complete"] ? "Complete" : "Incomplete",
+            created_at: todo["CreateTime"],
+            completed_at: todo["CompleteTime"],
+            user_id: todo.dig("Owner", "Id"),
+            user_name: todo.dig("Owner", "Name")
           }
-        }
+        )
       end
     end
 
@@ -103,20 +105,16 @@ module Bloomy
       response.map do |measurable|
         next unless measurable["Id"] && measurable["Name"]
 
-        Types::MeetingMetric.new(
+        Types::MetricItem.new(
           id: measurable["Id"],
           title: measurable["Name"].to_s.strip,
           target: measurable["Target"].to_f,
           operator: measurable["Direction"].to_s,
           format: measurable["Modifiers"].to_s,
-          owner: Types::UserItem.new(
-            id: measurable.dig("Owner", "Id"),
-            name: measurable.dig("Owner", "Name")
-          ),
-          admin: Types::UserItem.new(
-            id: measurable.dig("Admin", "Id"),
-            name: measurable.dig("Admin", "Name")
-          )
+          user_id: measurable.dig("Owner", "Id"),
+          user_name: measurable.dig("Owner", "Name"),
+          admin_id: measurable.dig("Admin", "Id"),
+          admin_name: measurable.dig("Admin", "Name")
         )
       end.compact
     end

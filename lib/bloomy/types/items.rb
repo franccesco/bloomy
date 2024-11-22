@@ -10,6 +10,8 @@ module Bloomy
       :created_at,
       :completed_at,
       :status,
+      :user_name,
+      :user_id,
       keyword_init: true
     )
 
@@ -28,13 +30,6 @@ module Bloomy
     MeetingItem = Struct.new(
       :id,
       :title,
-      :attendees,
-      keyword_init: true
-    )
-
-    MeetingAttendee = Struct.new(
-      :id,
-      :name,
       keyword_init: true
     )
 
@@ -44,18 +39,19 @@ module Bloomy
       :attendees,
       :issues,
       :todos,
-      :metrics,
-      keyword_init: true
+      :metrics
     )
 
-    MeetingMetric = Struct.new(
+    MetricItem = Struct.new(
       :id,
       :title,
       :target,
       :operator,
       :format,
-      :owner,
-      :admin,
+      :user_id,
+      :user_name,
+      :admin_id,
+      :admin_name,
       keyword_init: true
     )
 
