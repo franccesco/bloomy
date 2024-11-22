@@ -13,7 +13,7 @@ RSpec.describe "Meeting Operations" do
   context "when interacting with meetings API" do
     it "returns a list of meetings" do
       meetings = @client.meeting.list
-      expect(meetings).to all(be_a(MeetingItem))
+      expect(meetings).to all(be_a(Bloomy::Types::MeetingItem))
       expect(meetings.first).to have_attributes(
         id: be_kind_of(Integer),
         title: be_kind_of(String)
@@ -22,7 +22,7 @@ RSpec.describe "Meeting Operations" do
 
     it "returns a list of meeting attendees" do
       attendees = @client.meeting.attendees(@meeting_id)
-      expect(attendees).to all(be_a(MeetingAttendee))
+      expect(attendees).to all(be_a(Bloomy::Types::MeetingAttendee))
       expect(attendees.first).to have_attributes(
         id: be_kind_of(Integer),
         name: be_kind_of(String)
@@ -41,7 +41,7 @@ RSpec.describe "Meeting Operations" do
 
     it "returns a list of meeting metrics" do
       metrics = @client.meeting.metrics(@meeting_id)
-      expect(metrics).to all(be_a(MeetingMetric))
+      expect(metrics).to all(be_a(Bloomy::Types::MeetingMetric))
 
       # Skip detailed attribute checking if no metrics exist
       if metrics.any?
@@ -59,14 +59,14 @@ RSpec.describe "Meeting Operations" do
 
     it "returns meeting details" do
       details = @client.meeting.details(@meeting_id)
-      expect(details).to be_a(MeetingDetails)
+      expect(details).to be_a(Bloomy::Types::MeetingDetails)
       expect(details).to have_attributes(
         id: be_kind_of(Integer),
         title: be_kind_of(String),
-        attendees: all(be_a(MeetingAttendee)),
+        attendees: all(be_a(Bloomy::Types::MeetingAttendee)),
         issues: be_kind_of(Array),
         todos: be_kind_of(Array),
-        metrics: all(be_a(MeetingMetric))
+        metrics: all(be_a(Bloomy::Types::MeetingMetric))
       )
     end
   end
