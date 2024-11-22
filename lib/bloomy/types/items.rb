@@ -94,17 +94,6 @@ module Bloomy
       keyword_init: true
     )
 
-    IssueDetails = Struct.new(
-      :id,
-      :title,
-      :notes_url,
-      :created_at,
-      :completed_at,
-      :meeting_details,
-      :owner_details,
-      keyword_init: true
-    )
-
     WeekItem = Struct.new(
       :id,
       :week_number,
