@@ -6,7 +6,7 @@ require "bloomy/types/items"
 module Bloomy
   # Class to handle all the operations related to meeting
   # @note
-  #   This class is already initialized via the client and usable as `client.measurable.method`
+  #   This class is already initialized via the client and usable as `client.meeting.method`
   class Meeting
     include Bloomy::Utilities::UserIdUtility
     # Initializes a new Meeting instance
@@ -147,9 +147,9 @@ module Bloomy
     # @param title [String] the title of the new meeting
     # @param add_self [Boolean] whether to add the current user as an attendee (default: true)
     # @param attendees [Array<Integer>] a list of user IDs to add as attendees
-    # @return [Hash] a hash containing the new meeting's ID and title, and the list of attendees
+    # @return [Hash] a hash containing meeting_id, title and attendees array
     # @example
-    #   client.meeting.create(title: "New Meeting", attendees: [2, 3])
+    #   client.meeting.create("New Meeting", attendees: [2, 3])
     #   #=> { meeting_id: 1, title: "New Meeting", attendees: [2, 3] }
     def create(title, add_self: true, attendees: [])
       payload = {title: title, addSelf: add_self}.to_json
@@ -165,8 +165,10 @@ module Bloomy
     # Deletes a meeting
     #
     # @param meeting_id [Integer] the ID of the meeting to delete
+    # @return [Boolean] true if deletion was successful
     # @example
     #   client.meeting.delete(1)
+    #   #=> true
     def delete(meeting_id)
       response = @conn.delete("L10/#{meeting_id}")
       response.success?
