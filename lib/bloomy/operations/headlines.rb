@@ -112,7 +112,6 @@ class Headline
 
   # Deletes a headline
   #
-  # @param meeting_id [Integer] the ID of the meeting
   # @param headline_id [Integer] the ID of the headline to delete
   # @return [Boolean] true if the deletion was successful
   def delete(headline_id)
