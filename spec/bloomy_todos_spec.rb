@@ -16,7 +16,7 @@ RSpec.describe "Todo Operations" do
 
   context "when interacting with todos API" do
     it "creates a todo" do
-      expect(@todo).to be_a(TodoItem)
+      expect(@todo).to be_a(Bloomy::Types::TodoItem)
       expect(@todo.id).to be_a(Integer)
       expect(@todo.title).to be_a(String)
       expect(@todo.notes_url).to be_a(String)
@@ -24,14 +24,14 @@ RSpec.describe "Todo Operations" do
 
     it "updates a todo" do
       updated_todo = @client.todo.update(todo_id: @todo.id, title: "Updated Todo")
-      expect(updated_todo).to be_a(TodoItem)
+      expect(updated_todo).to be_a(Bloomy::Types::TodoItem)
       expect(updated_todo.id).to eq(@todo.id)
       expect(updated_todo.title).to eq("Updated Todo")
     end
 
     it "gets todo details" do
       todo_details = @client.todo.details(@todo.id)
-      expect(todo_details).to be_a(TodoItem)
+      expect(todo_details).to be_a(Bloomy::Types::TodoItem)
       expect(todo_details.id).to eq(@todo.id)
       expect(todo_details.title).to eq("Updated Todo")
       expect(todo_details.due_date).to be_a(String)
@@ -42,7 +42,7 @@ RSpec.describe "Todo Operations" do
 
     it "lists the current user todos" do
       todos = @client.todo.list
-      expect(todos).to all(be_a(TodoItem))
+      expect(todos).to all(be_a(Bloomy::Types::TodoItem))
 
       sample_todo = todos.first
       expect(sample_todo.id).to be_a(Integer)
@@ -55,7 +55,7 @@ RSpec.describe "Todo Operations" do
 
     it "lists the meeting todos" do
       todos = @client.todo.list(meeting_id: @meeting_id)
-      expect(todos).to all(be_a(TodoItem))
+      expect(todos).to all(be_a(Bloomy::Types::TodoItem))
       expect(todos).to_not be_empty
     end
 
