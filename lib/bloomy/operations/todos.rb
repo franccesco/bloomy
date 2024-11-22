@@ -78,10 +78,10 @@ module Bloomy
     # Marks a todo as complete
     #
     # @param todo_id [Integer] the ID of the todo to complete
-    # @return [Hash] a hash containing the status of the complete operation
+    # @return [Boolean] true if the operation was successful
     # @example
     #   todo.complete(1)
-    #   #=> { status: 200 }
+    #   #=> true
     def complete(todo_id)
       response = @conn.post("/api/v1/todo/#{todo_id}/complete?status=true")
       response.success?
@@ -93,6 +93,8 @@ module Bloomy
     # @param title [String, nil] the new title of the todo (optional)
     # @param due_date [String, nil] the new due date of the todo (optional)
     # @return [TodoItem] the updated todo item
+    # @raise [ArgumentError] if no update fields are provided
+    # @raise [RuntimeError] if the update request fails
     # @example
     #   todo.update(todo_id: 1, title: "Updated Todo", due_date: "2024-11-01")
     #   #=> #<TodoItem id: 1, title: "Updated Todo", due_date: "2024-11-01", ...>
@@ -117,7 +119,7 @@ module Bloomy
 
     # Retrieves the details of a specific todo item by its ID.
     #
-    # @param todo_id [String] The ID of the todo item to retrieve.
+    # @param todo_id [Integer] The ID of the todo item to retrieve.
     # @return [TodoItem] The requested todo item
     # @raise [RuntimeError] If the request to retrieve the todo details fails.
     # @example
