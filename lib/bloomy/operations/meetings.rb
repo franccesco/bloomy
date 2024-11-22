@@ -50,17 +50,17 @@ module Bloomy
     def issues(meeting_id, include_closed: false)
       response = @conn.get("L10/#{meeting_id}/issues?include_resolved=#{include_closed}").body
       response.map do |issue|
-        {
+        Types::IssueItem.new(
           id: issue["Id"],
           title: issue["Name"],
+          notes_url: issue["DetailsUrl"],
           created_at: issue["CreateTime"],
-          closed_at: issue["CloseTime"],
-          details_url: issue["DetailsUrl"],
-          owner: {
-            id: issue["Owner"]["Id"],
-            name: issue["Owner"]["Name"]
-          }
-        }
+          completed_at: issue["CloseTime"],
+          user_id: issue.dig("Owner", "Id"),
+          user_name: issue.dig("Owner", "Name"),
+          meeting_id: meeting_id,
+          meeting_title: issue["Origin"]
+        )
       end
     end
 
