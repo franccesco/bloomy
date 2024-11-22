@@ -21,10 +21,10 @@ module Bloomy
     # @param direct_reports [Boolean] whether to include direct reports (default: false)
     # @param positions [Boolean] whether to include positions (default: false)
     # @param all [Boolean] whether to include both direct reports and positions (default: false)
-    # @return [Hash] a hash containing user details
+    # @return [Types::UserItem] a UserItem object containing user details
     # @example
     #   client.user.details
-    #   #=> {name: "John Doe", id: 1, image_url: "http://example.com/image.jpg", ...}
+    #   #=> #<Types::UserItem id: 1, name: "John Doe", image_url: "http://example.com/image.jpg">
     def details(user_id = self.user_id, direct_reports: false, positions: false, all: false)
       response = @conn.get("users/#{user_id}").body
       user_details = Types::UserItem.new(
@@ -41,10 +41,10 @@ module Bloomy
     # Retrieves direct reports of a specific user
     #
     # @param user_id [Integer] the ID of the user (default: the current user ID)
-    # @return [Array<Hash>] an array of hashes containing direct report details
+    # @return [Array<Types::UserItem>] an array of UserItem objects containing direct report details
     # @example
     #   client.user.direct_reports
-    #   #=> [{name: "Jane Smith", id: 2, image_url: "http://example.com/image.jpg"}, ...]
+    #   #=> [#<Types::UserItem name: "Jane Smith", id: 2, image_url: "http://example.com/image.jpg">, ...]
     def direct_reports(user_id = self.user_id)
       direct_reports_response = @conn.get("users/#{user_id}/directreports").body
       direct_reports_response.map do |report|
@@ -59,10 +59,10 @@ module Bloomy
     # Retrieves positions of a specific user
     #
     # @param user_id [Integer] the ID of the user (default: the current user ID)
-    # @return [Array<Hash>] an array of hashes containing position details
+    # @return [Array<Types::UserItem>] an array of UserItem objects containing position details
     # @example
     #   user.positions
-    #   #=> [{name: "Manager", id: 3}, ...]
+    #   #=> [#<Types::UserItem name: "Manager", id: 3>, ...]
     def positions(user_id = self.user_id)
       position_response = @conn.get("users/#{user_id}/seats").body
       position_response.map do |position|
@@ -76,10 +76,10 @@ module Bloomy
     # Searches for users based on a search term
     #
     # @param term [String] the search term
-    # @return [Array<Hash>] an array of hashes containing search results
+    # @return [Array<Types::UserItem>] an array of UserItem objects containing search results
     # @example
     #   user.search("John")
-    #   #=> [{id: 1, name: "John Doe", description: "Developer", ...}, ...]
+    #   #=> [#<Types::UserItem id: 1, name: "John Doe", description: "Developer", ...>, ...]
     def search(term)
       response = @conn.get("search/user", term: term).body
       response.map do |user|
@@ -96,11 +96,11 @@ module Bloomy
 
     # Retrieves all users in the system
     #
-    # @param include_placeholders [Boolean] whether to include users
-    # @return [Array<Hash>] an array of hashes containing user details
+    # @param include_placeholders [Boolean] whether to include placeholder users (default: false)
+    # @return [Array<Types::UserItem>] an array of UserItem objects containing user details
     # @example
     #   user.all
-    #   #=> [{id: 1, name: "John Doe", email: "john@example.com", ...}, ...]
+    #   #=> [#<Types::UserItem id: 1, name: "John Doe", email: "john@example.com", ...>, ...]
     def all(include_placeholders: false)
       users = @conn.get("search/all", term: "%").body
       users
