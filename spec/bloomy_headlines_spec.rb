@@ -39,14 +39,14 @@ RSpec.describe "Headline Operations" do
       headlines = @client.headline.list
 
       expect(headlines).not_to be_empty
-      expect(headlines.first).to be_a(HeadlineItem)
+      expect(headlines.first).to be_a(Bloomy::Types::HeadlineItem)
     end
 
     it "gets meeting headlines" do
       headlines = @client.headline.list(meeting_id: @meeting_id)
 
       expect(headlines).not_to be_empty
-      expect(headlines.first).to be_a(HeadlineItem)
+      expect(headlines.first).to be_a(Bloomy::Types::HeadlineItem)
     end
 
     it "deletes a headline" do
