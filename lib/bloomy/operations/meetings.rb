@@ -105,20 +105,16 @@ module Bloomy
       response.map do |measurable|
         next unless measurable["Id"] && measurable["Name"]
 
-        Types::MeetingMetric.new(
+        Types::MetricItem.new(
           id: measurable["Id"],
           title: measurable["Name"].to_s.strip,
           target: measurable["Target"].to_f,
           operator: measurable["Direction"].to_s,
           format: measurable["Modifiers"].to_s,
-          owner: Types::UserItem.new(
-            id: measurable.dig("Owner", "Id"),
-            name: measurable.dig("Owner", "Name")
-          ),
-          admin: Types::UserItem.new(
-            id: measurable.dig("Admin", "Id"),
-            name: measurable.dig("Admin", "Name")
-          )
+          user_id: measurable.dig("Owner", "Id"),
+          user_name: measurable.dig("Owner", "Name"),
+          admin_id: measurable.dig("Admin", "Id"),
+          admin_name: measurable.dig("Admin", "Name")
         )
       end.compact
     end
