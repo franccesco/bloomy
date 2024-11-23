@@ -16,6 +16,9 @@ If you want to contribute to the project, please follow these steps:
 
 ### Development Setup
 
+> [!IMPORTANT]
+> Make sure you have a Bloom Growth account and that you're using a user that won't disrupt the experience of other users. The tests will create and delete meetings, so make sure you're not using a user that has important meetings scheduled.
+
 1. Fork and clone the repository:
 
 ```sh
@@ -28,7 +31,7 @@ git clone https://github.com/your-username/bloomy.git
 bundle install
 ```
 
-3. Set up pre-commit hooks:
+3. Set up [pre-commit](https://pre-commit.com) hooks:
 
 ```sh
 pre-commit install
@@ -41,10 +44,10 @@ export USERNAME=your_username
 export PASSWORD=your_password
 ```
 
-5. Run the tests:
+5. Run the tests to make sure everything is green:
 
 ```sh
-bundle exec rspec
+bundle exec rspec --fail-fast
 ```
 
 ### Making Changes
@@ -63,7 +66,7 @@ As for coding style guidelines make sure you:
 2. Make sure your PR passes the CI checks.
 3. Make sure your PR has a clear title and description.
 4. Update the version according to [Semantic Versioning](https://semver.org/).
-5. Optionally, use [Conventional Commits](https://www.conventionalcommits.org/) for your commit messages.
+5. Use [Conventional Commits](https://www.conventionalcommits.org/) for your commit messages.
 
 Make sure to follow these guidelines to ensure your PR is accepted and merged quickly. Rinse and repeat! 🚀
 
