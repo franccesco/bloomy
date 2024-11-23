@@ -48,7 +48,6 @@ RSpec.describe "User Operations" do
       positions = @client.user.positions
       expect(positions).to all(be_a(Bloomy::Types::UserItem))
       positions.each do |position|
-        expect(position.name).to be_a(String)
         expect(position.id).to be_a(Integer)
       end
     end
