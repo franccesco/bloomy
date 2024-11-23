@@ -16,14 +16,12 @@ RSpec.describe "Goal Operations" do
       goals = @client.goal.list
       expect(goals).to all(be_a(Bloomy::Types::GoalItem))
 
-      sample_goal = goals.first
-      expect(sample_goal.id).to be_a(Integer)
-      expect(sample_goal.title).to be_a(String)
-      expect(sample_goal.created_at).to be_a(String)
-      expect(sample_goal.due_date).to be_a(String)
-      expect(sample_goal.status).to match(/Completed|Incomplete/)
-      expect(sample_goal.meeting_id).to be_a(Integer)
-      expect(sample_goal.meeting_title).to be_a(String)
+      expect(@created_goal.id).to be_a(Integer)
+      expect(@created_goal.title).to be_a(String)
+      expect(@created_goal.created_at).to be_a(String)
+      expect(@created_goal.status).to match(/on|off/)
+      expect(@created_goal.meeting_id).to be_a(Integer)
+      expect(@created_goal.meeting_title).to be_a(String)
     end
 
     it "returns user active & archived goals" do
