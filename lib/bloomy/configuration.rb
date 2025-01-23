@@ -44,8 +44,19 @@ module Bloomy
     # @return [String] the fetched API key
     def fetch_api_key(username, password)
       conn = Faraday.new(url: "https://app.bloomgrowth.com")
-      response = conn.post("/Token", "grant_type=password&userName=#{username}&password=#{password}",
-        {"Content-Type" => "application/x-www-form-urlencoded"})
+      response = conn.post("/Token") do |req|
+        req.headers["Content-Type"] = "application/x-www-form-urlencoded"
+        req.body = URI.encode_www_form(
+          grant_type: "password",
+          userName: username,
+          password: password
+        )
+      end
+
+      unless response.success?
+        raise "Failed to fetch API key: #{response.status} - #{response.body}"
+      end
+
       JSON.parse(response.body)["access_token"]
     end
 
