@@ -2,7 +2,6 @@
 
 require "faraday"
 
-require "bloomy/types/items"
 require "bloomy/operations/users"
 require "bloomy/operations/todos"
 require "bloomy/operations/goals"
@@ -10,7 +9,6 @@ require "bloomy/operations/meetings"
 require "bloomy/operations/scorecard"
 require "bloomy/operations/issues"
 require "bloomy/operations/headlines"
-require "bloomy/utils/plugin_loader"
 
 module Bloomy
   # The Client class is the main entry point for interacting with the Bloomy API.
@@ -46,9 +44,6 @@ module Bloomy
       @scorecard = Scorecard.new(@conn)
       @issue = Issue.new(@conn)
       @headline = Headline.new(@conn)
-
-      # Initialize plugins
-      Bloomy::Utilities::Plugin.apply(self)
     end
   end
 end

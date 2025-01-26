@@ -19,12 +19,12 @@ module Bloomy
     #
     # @param user_id [Integer, nil] the ID of the user (default is the initialized user ID)
     # @param meeting_id [Integer, nil] the ID of the meeting
-    # @return [Array<TodoItem>] an array of TodoItem objects
+    # @return [Array<Hash>] an array of todo hashes
     # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
     # @example
     #   # Fetch todos for the current user
     #   client.todo.list
-    #   #=> [#<TodoItem id: 1, title: "New Todo", due_date: "2024-06-15", ...>]
+    #   #=> [{ id: 1, title: "New Todo", due_date: "2024-06-15", ... }]
     def list(user_id: nil, meeting_id: nil)
       raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both." if user_id && meeting_id
 
@@ -36,7 +36,7 @@ module Bloomy
       end
 
       response.map do |todo|
-        Types::TodoItem.new(
+        {
           id: todo["Id"],
           title: todo["Name"],
           notes_url: todo["DetailsUrl"],
@@ -44,7 +44,7 @@ module Bloomy
           created_at: todo["CreateTime"],
           completed_at: todo["CompleteTime"],
           status: todo["Complete"] ? "Complete" : "Incomplete"
-        )
+        }
       end
     end
 
@@ -55,23 +55,23 @@ module Bloomy
     # @param due_date [String, nil] the due date of the todo (optional)
     # @param user_id [Integer] the ID of the user responsible for the todo (default: initialized user ID)
     # @param notes [String, nil] additional notes for the todo (optional)
-    # @return [TodoItem] the newly created todo item
+    # @return [Hash] the newly created todo hash
     # @example
     #   client.todo.create(title: "New Todo", meeting_id: 1, due_date: "2024-06-15")
-    #   #=> #<TodoItem id: 1, title: "New Todo", due_date: "2024-06-15", ...>
+    #   #=> { id: 1, title: "New Todo", due_date: "2024-06-15", ... }
     def create(title:, meeting_id:, due_date: nil, user_id: self.user_id, notes: nil)
       payload = {title: title, accountableUserId: user_id, notes: notes}
       payload[:dueDate] = due_date if due_date
       response = @conn.post("/api/v1/L10/#{meeting_id}/todos", payload.to_json).body
 
-      Types::TodoItem.new(
+      {
         id: response["Id"],
         title: response["Name"],
         notes_url: response["DetailsUrl"],
         due_date: response["DueDate"],
         created_at: DateTime.now.to_s,
         status: "Incomplete"
-      )
+      }
     end
 
     # Marks a todo as complete
@@ -91,12 +91,12 @@ module Bloomy
     # @param todo_id [Integer] the ID of the todo to update
     # @param title [String, nil] the new title of the todo (optional)
     # @param due_date [String, nil] the new due date of the todo (optional)
-    # @return [TodoItem] the updated todo item
+    # @return [Hash] the updated todo hash
     # @raise [ArgumentError] if no update fields are provided
     # @raise [RuntimeError] if the update request fails
     # @example
     #   todo.update(todo_id: 1, title: "Updated Todo", due_date: "2024-11-01")
-    #   #=> #<TodoItem id: 1, title: "Updated Todo", due_date: "2024-11-01", ...>
+    #   #=> { id: 1, title: "Updated Todo", due_date: "2024-11-01", ... }
     def update(todo_id:, title: nil, due_date: nil)
       payload = {}
       payload[:title] = title if title
@@ -107,29 +107,29 @@ module Bloomy
       response = @conn.put("/api/v1/todo/#{todo_id}", payload.to_json)
       raise "Failed to update todo. Status: #{response.status}" unless response.status == 200
 
-      Types::TodoItem.new(
+      {
         id: todo_id,
         title: title,
         due_date: due_date,
         created_at: nil,
         status: "Incomplete"
-      )
+      }
     end
 
     # Retrieves the details of a specific todo item by its ID.
     #
     # @param todo_id [Integer] The ID of the todo item to retrieve.
-    # @return [TodoItem] The requested todo item
+    # @return [Hash] The requested todo hash
     # @raise [RuntimeError] If the request to retrieve the todo details fails.
     # @example
     #   client.todo.details(1)
-    #   #=> #<TodoItem id: 1, title: "Updated Todo", due_date: "2024-11-01", ...>
+    #   #=> { id: 1, title: "Updated Todo", due_date: "2024-11-01", ... }
     def details(todo_id)
       response = @conn.get("/api/v1/todo/#{todo_id}")
       raise "Failed to get todo details. Status: #{response.status}" unless response.success?
 
       todo = response.body
-      Types::TodoItem.new(
+      {
         id: todo["Id"],
         title: todo["Name"],
         notes_url: todo["DetailsUrl"],
@@ -137,7 +137,7 @@ module Bloomy
         created_at: todo["CreateTime"],
         completed_at: todo["CompleteTime"],
         status: todo["Complete"] ? "Complete" : "Incomplete"
-      )
+      }
     end
   end
 end

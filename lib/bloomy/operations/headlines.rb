@@ -18,18 +18,18 @@ module Bloomy
     # @param title [String] the title of the headline
     # @param owner_id [Integer] the ID of the headline owner
     # @param notes [String] additional notes for the headline
-    # @return [HeadlineItem] containing id, title, owner_details, and notes_url
+    # @return [Hash] containing id, title, owner_details, and notes_url
     def create(meeting_id:, title:, owner_id: user_id, notes: nil)
       response = @conn.post("/api/v1/L10/#{meeting_id}/headlines",
         {title: title, ownerId: owner_id, notes: notes}.to_json)
       raise "Failed to create headline" unless response.status == 200
 
-      Types::HeadlineItem.new(
+      {
         id: response.body["Id"],
         title: response.body["Name"],
-        owner_details: Types::UserItem.new(id: response.body["OwnerId"]),
+        owner_details: {id: response.body["OwnerId"]},
         notes_url: response.body["DetailsUrl"]
-      )
+      }
     end
 
     # Updates a headline
@@ -46,28 +46,28 @@ module Bloomy
     # Get headline details
     #
     # @param headline_id [Integer] the ID of the headline
-    # @return [HeadlineItem] containing id, title, notes_url, meeting_details,
-    #                        owner_details, archived, created_at, and closed_at
+    # @return [Hash] containing id, title, notes_url, meeting_details,
+    #                owner_details, archived, created_at, and closed_at
     def details(headline_id)
       response = @conn.get("/api/v1/headline/#{headline_id}?Include_Origin=true")
       raise "Failed to get headline details" unless response.status == 200
 
-      Types::HeadlineItem.new(
+      {
         id: response.body["Id"],
         title: response.body["Name"],
         notes_url: response.body["DetailsUrl"],
-        meeting_details: Types::MeetingItem.new(
+        meeting_details: {
           id: response.body["OriginId"],
           title: response.body["Origin"]
-        ),
-        owner_details: Types::UserItem.new(
+        },
+        owner_details: {
           id: response.body["Owner"]["Id"],
           name: response.body["Owner"]["Name"]
-        ),
+        },
         archived: response.body["Archived"],
         created_at: response.body["CreateTime"],
         closed_at: response.body["CloseTime"]
-      )
+      }
     end
 
     # Get headlines for a user or a meeting.
@@ -75,7 +75,7 @@ module Bloomy
     # @param user_id [Integer, nil] the ID of the user (defaults to initialized user_id)
     # @param meeting_id [Integer, nil] the ID of the meeting
     # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
-    # @return [Array<HeadlineItem>] a list of headlines containing:
+    # @return [Array<Hash>] a list of headlines containing:
     #   - id
     #   - title
     #   - meeting_details
@@ -86,15 +86,15 @@ module Bloomy
     # @example
     #   client.headline.list
     #   #=> [
-    #     #<HeadlineItem
+    #     {
     #       id: 1,
     #       title: "Headline Title",
-    #       meeting_details: #<MeetingItem id: 1, title: "Team Meeting">,
-    #       owner_details: #<UserItem id: 1, name: "John Doe">,
+    #       meeting_details: { id: 1, title: "Team Meeting" },
+    #       owner_details: { id: 1, name: "John Doe" },
     #       archived: false,
     #       created_at: "2023-01-01",
     #       closed_at: nil
-    #     >
+    #     }
     #   ]
     def list(user_id: nil, meeting_id: nil)
       raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both." if user_id && meeting_id
@@ -109,21 +109,21 @@ module Bloomy
       raise "Failed to list headlines" unless response.success?
 
       response.body.map do |headline|
-        Types::HeadlineItem.new(
+        {
           id: headline["Id"],
           title: headline["Name"],
-          meeting_details: Types::MeetingItem.new(
+          meeting_details: {
             id: headline["OriginId"],
             title: headline["Origin"]
-          ),
-          owner_details: Types::UserItem.new(
+          },
+          owner_details: {
             id: headline["Owner"]["Id"],
             name: headline["Owner"]["Name"]
-          ),
+          },
           archived: headline["Archived"],
           created_at: headline["CreateTime"],
           closed_at: headline["CloseTime"]
-        )
+        }
       end
     end
 

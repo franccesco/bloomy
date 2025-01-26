@@ -24,7 +24,7 @@ module Bloomy
     #   #=> [{ id: 123, name: "Team Meeting" }, ...]
     def list(user_id = self.user_id)
       response = @conn.get("L10/#{user_id}/list").body
-      response.map { |meeting| Types::MeetingItem.new(id: meeting["Id"], title: meeting["Name"]) }
+      response.map { |meeting| {id: meeting["Id"], title: meeting["Name"]} }
     end
 
     # Lists all attendees for a specific meeting
@@ -36,7 +36,7 @@ module Bloomy
     #   #=> [{ name: "John Doe", id: 1 }, ...]
     def attendees(meeting_id)
       response = @conn.get("L10/#{meeting_id}/attendees").body
-      response.map { |attendee| Types::UserItem.new(id: attendee["Id"], name: attendee["Name"]) }
+      response.map { |attendee| {id: attendee["Id"], name: attendee["Name"]} }
     end
 
     # Lists all issues for a specific meeting
@@ -50,7 +50,7 @@ module Bloomy
     def issues(meeting_id, include_closed: false)
       response = @conn.get("L10/#{meeting_id}/issues?include_resolved=#{include_closed}").body
       response.map do |issue|
-        Types::IssueItem.new(
+        {
           id: issue["Id"],
           title: issue["Name"],
           notes_url: issue["DetailsUrl"],
@@ -60,7 +60,7 @@ module Bloomy
           user_name: issue.dig("Owner", "Name"),
           meeting_id: meeting_id,
           meeting_title: issue["Origin"]
-        )
+        }
       end
     end
 
@@ -75,19 +75,17 @@ module Bloomy
     def todos(meeting_id, include_closed: false)
       response = @conn.get("L10/#{meeting_id}/todos?INCLUDE_CLOSED=#{include_closed}").body
       response.map do |todo|
-        Types::TodoItem.new(
-          {
-            id: todo["Id"],
-            title: todo["Name"],
-            due_date: todo["DueDate"],
-            notes_url: todo["DetailsUrl"],
-            status: todo["Complete"] ? "Complete" : "Incomplete",
-            created_at: todo["CreateTime"],
-            completed_at: todo["CompleteTime"],
-            user_id: todo.dig("Owner", "Id"),
-            user_name: todo.dig("Owner", "Name")
-          }
-        )
+        {
+          id: todo["Id"],
+          title: todo["Name"],
+          due_date: todo["DueDate"],
+          notes_url: todo["DetailsUrl"],
+          status: todo["Complete"] ? "Complete" : "Incomplete",
+          created_at: todo["CreateTime"],
+          completed_at: todo["CompleteTime"],
+          user_id: todo.dig("Owner", "Id"),
+          user_name: todo.dig("Owner", "Name")
+        }
       end
     end
 
@@ -105,7 +103,7 @@ module Bloomy
       response.map do |measurable|
         next unless measurable["Id"] && measurable["Name"]
 
-        Types::MetricItem.new(
+        {
           id: measurable["Id"],
           title: measurable["Name"].to_s.strip,
           target: measurable["Target"].to_f,
@@ -115,7 +113,7 @@ module Bloomy
           user_name: measurable.dig("Owner", "Name"),
           admin_id: measurable.dig("Admin", "Id"),
           admin_name: measurable.dig("Admin", "Name")
-        )
+        }
       end.compact
     end
 
@@ -128,15 +126,15 @@ module Bloomy
     #   client.meeting.details(1)
     #   #=> { id: 1, name: "Team Meeting", attendees: [...], issues: [...], todos: [...], metrics: [...] }
     def details(meeting_id, include_closed: false)
-      meeting = list.find { |m| m.id == meeting_id }
-      Types::MeetingDetails.new(
-        id: meeting.id,
-        title: meeting.title,
+      meeting = list.find { |m| m[:id] == meeting_id }
+      {
+        id: meeting[:id],
+        title: meeting[:title],
         attendees: attendees(meeting_id),
         issues: issues(meeting_id, include_closed: include_closed),
         todos: todos(meeting_id, include_closed: include_closed),
         metrics: metrics(meeting_id)
-      )
+      }
     end
 
     # Creates a new meeting
