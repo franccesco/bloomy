@@ -21,11 +21,11 @@ module Bloomy
     # Retrieves detailed information about a specific issue
     #
     # @param issue_id [Integer] Unique identifier of the issue
-    # @return [Types::IssueDetails] Detailed information about the issue
+    # @return [Hash] Detailed information about the issue
     # @raise [ApiError] When the API request fails or returns invalid data
     def details(issue_id)
       response = @conn.get("issues/#{issue_id}").body
-      Types::IssueItem.new(
+      {
         id: response["Id"],
         title: response["Name"],
         notes_url: response["DetailsUrl"],
@@ -35,14 +35,14 @@ module Bloomy
         meeting_title: response["Origin"],
         user_id: response["Owner"]["Id"],
         user_name: response["Owner"]["Name"]
-      )
+      }
     end
 
     # Lists issues filtered by user or meeting
     #
     # @param user_id [Integer, nil] Unique identifier of the user (optional)
     # @param meeting_id [Integer, nil] Unique identifier of the meeting (optional)
-    # @return [Array<Types::IssueItem>] List of issues matching the filter criteria
+    # @return [Array<Hash>] List of issues matching the filter criteria
     # @raise [ArgumentError] When both user_id and meeting_id are provided
     # @raise [ApiError] When the API request fails or returns invalid data
     def list(user_id: nil, meeting_id: nil)
@@ -53,14 +53,14 @@ module Bloomy
       response = meeting_id ? @conn.get("l10/#{meeting_id}/issues").body : @conn.get("issues/users/#{user_id || self.user_id}").body
 
       response.map do |issue|
-        Types::IssueItem.new(
+        {
           id: issue["Id"],
           title: issue["Name"],
           notes_url: issue["DetailsUrl"],
           created_at: issue["CreateTime"],
           meeting_id: issue["OriginId"],
           meeting_title: issue["Origin"]
-        )
+        }
       end
     end
 
@@ -80,19 +80,19 @@ module Bloomy
     # @param title [String] Title/name of the issue
     # @param user_id [Integer] Unique identifier of the issue owner (defaults to current user)
     # @param notes [String, nil] Additional notes or description for the issue (optional)
-    # @return [Types::IssueItem] Newly created issue details
+    # @return [Hash] Newly created issue details
     # @raise [ApiError] When the API request fails or returns invalid data
     # @raise [ArgumentError] When required parameters are missing or invalid
     def create(meeting_id:, title:, user_id: self.user_id, notes: nil)
       response = @conn.post("issues/create", {title: title, meetingid: meeting_id, ownerid: user_id, notes: notes}.to_json)
-      Types::IssueItem.new(
+      {
         id: response.body["Id"],
         meeting_id: response.body["OriginId"],
         meeting_title: response.body["Origin"],
         title: response.body["Name"],
         user_id: response.body["Owner"]["Id"],
         notes_url: response.body["DetailsUrl"]
-      )
+      }
     end
   end
 end

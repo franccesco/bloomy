@@ -19,18 +19,18 @@ module Bloomy
 
     # Retrieves the current week details
     #
-    # @return [Types::WeekItem] an object containing current week details
+    # @return [Hash] a hash containing current week details
     # @example
     #   client.scorecard.current_week
-    #   #=> #<Types::WeekItem @id=123, @week_number=24, @week_start="2024-06-10", @week_end="2024-06-16">
+    #   #=> { id: 123, week_number: 24, week_start: "2024-06-10", week_end: "2024-06-16" }
     def current_week
       response = @conn.get("weeks/current").body
-      Types::WeekItem.new(
+      {
         id: response["Id"],
         week_number: response["ForWeekNumber"],
         week_start: response["LocalDate"]["Date"],
         week_end: response["ForWeek"]
-      )
+      }
     end
 
     # Retrieves the scorecards for a user or a meeting.
@@ -40,7 +40,7 @@ module Bloomy
     # @param show_empty [Boolean] whether to include scores with nil values (default: false)
     # @param week_offset [Integer, nil] offset for the week number to filter scores
     # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
-    # @return [Array<Types::ScorecardItem>] an array of scorecard items
+    # @return [Array<Hash>] an array of scorecard hashes
     # @example
     #   # Fetch scorecards for the current user
     #   client.scorecard.list
@@ -65,7 +65,7 @@ module Bloomy
       end
 
       scorecards = response["Scores"].map do |scorecard|
-        Types::ScorecardItem.new(
+        {
           id: scorecard["Id"],
           measurable_id: scorecard["MeasurableId"],
           accountable_user_id: scorecard["AccountableUserId"],
@@ -75,16 +75,16 @@ module Bloomy
           week: scorecard["Week"],
           week_id: scorecard["ForWeek"],
           updated_at: scorecard["DateEntered"]
-        )
+        }
       end
 
       if week_offset
         week_data = current_week
-        week_id = week_data.week_number + week_offset
-        scorecards.select! { |scorecard| scorecard.week_id == week_id }
+        week_id = week_data[:week_number] + week_offset
+        scorecards.select! { |scorecard| scorecard[:week_id] == week_id }
       end
 
-      scorecards.select! { |scorecard| scorecard.value || show_empty } unless show_empty
+      scorecards.select! { |scorecard| scorecard[:value] || show_empty } unless show_empty
       scorecards
     end
 
