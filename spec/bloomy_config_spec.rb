@@ -6,7 +6,7 @@ RSpec.describe "Config Operations" do
   let(:config_file) { File.expand_path("~/.bloomy/config.yaml") }
   let(:config) { Bloomy::Configuration.new }
 
-  context "when configuring the API key", :vcr do
+  context "when configuring the API key" do
     before do
       FileUtils.rm_f(config_file)
       config.configure_api_key(username, password, store_key: true)
