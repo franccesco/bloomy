@@ -95,5 +95,3 @@ Gemfile.lock
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,ruby,direnv
 
-# Filter out VCR fixtures and cassettes
-/spec/fixtures/vcr_cassettes/*
