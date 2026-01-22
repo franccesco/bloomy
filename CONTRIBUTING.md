@@ -40,8 +40,8 @@ pre-commit install
 4. Add your Bloom Growth username and password to an `.env` file. I use [direnv](https://direnv.net/) to manage my environment variables.
 
 ```sh
-export USERNAME=your_username
-export PASSWORD=your_password
+export BG_USERNAME=your_username
+export BG_PASSWORD=your_password
 ```
 
 5. Run the tests to make sure everything is green:
