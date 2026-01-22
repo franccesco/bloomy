@@ -88,6 +88,20 @@ module Bloomy
       scorecards
     end
 
+    # Retrieves a single scorecard item by measurable ID
+    #
+    # @param measurable_id [Integer] the ID of the measurable item
+    # @param user_id [Integer, nil] the ID of the user (defaults to initialized user_id)
+    # @param week_offset [Integer] offset for the week number to filter scores (default: 0)
+    # @return [Hash, nil] the scorecard hash if found, nil otherwise
+    # @example
+    #   client.scorecard.get(measurable_id: 123)
+    #   #=> { id: 1, measurable_id: 123, title: "Sales", target: 100, value: 95, ... }
+    def get(measurable_id:, user_id: nil, week_offset: 0)
+      scorecards = list(user_id: user_id, show_empty: true, week_offset: week_offset)
+      scorecards.find { |s| s[:measurable_id] == measurable_id }
+    end
+
     # Updates the score for a measurable item for a specific week.
     #
     # @param measurable_id [Integer] the ID of the measurable item
