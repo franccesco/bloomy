@@ -20,9 +20,9 @@ module Bloomy
     # @param notes [String] additional notes for the headline
     # @return [Hash] containing id, title, owner_details, and notes_url
     def create(meeting_id:, title:, owner_id: user_id, notes: nil)
-      response = @conn.post("/api/v1/L10/#{meeting_id}/headlines",
+      response = @conn.post("L10/#{meeting_id}/headlines",
         {title: title, ownerId: owner_id, notes: notes}.to_json)
-      raise "Failed to create headline" unless response.status == 200
+      raise "Failed to create headline" unless response.success?
 
       {
         id: response.body["Id"],
@@ -38,8 +38,8 @@ module Bloomy
     # @param title [String] the new title of the headline
     # @return [Boolean] true if update was successful
     def update(headline_id:, title:)
-      response = @conn.put("/api/v1/headline/#{headline_id}", {title: title}.to_json)
-      raise "Failed to update headline" unless response.status == 200
+      response = @conn.put("headline/#{headline_id}", {title: title}.to_json)
+      raise "Failed to update headline" unless response.success?
       true
     end
 
@@ -49,8 +49,8 @@ module Bloomy
     # @return [Hash] containing id, title, notes_url, meeting_details,
     #                owner_details, archived, created_at, and closed_at
     def details(headline_id)
-      response = @conn.get("/api/v1/headline/#{headline_id}?Include_Origin=true")
-      raise "Failed to get headline details" unless response.status == 200
+      response = @conn.get("headline/#{headline_id}?Include_Origin=true")
+      raise "Failed to get headline details" unless response.success?
 
       {
         id: response.body["Id"],
@@ -100,10 +100,10 @@ module Bloomy
       raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both." if user_id && meeting_id
 
       if meeting_id
-        response = @conn.get("/api/v1/l10/#{meeting_id}/headlines")
+        response = @conn.get("l10/#{meeting_id}/headlines")
       else
         user_id ||= self.user_id
-        response = @conn.get("/api/v1/headline/users/#{user_id}")
+        response = @conn.get("headline/users/#{user_id}")
       end
 
       raise "Failed to list headlines" unless response.success?
@@ -132,7 +132,7 @@ module Bloomy
     # @param headline_id [Integer] the ID of the headline to delete
     # @return [Boolean] true if the deletion was successful
     def delete(headline_id)
-      response = @conn.delete("/api/v1/headline/#{headline_id}")
+      response = @conn.delete("headline/#{headline_id}")
       response.success?
     end
   end
