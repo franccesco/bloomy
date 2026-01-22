@@ -28,6 +28,8 @@ module Bloomy
     # @return [Array<Hash>, Hash] Returns either:
     #   - An array of goal hashes if archived is false
     #   - A hash with :active and :archived arrays of goal hashes if archived is true
+    # @raise [NotFoundError] when user is not found
+    # @raise [ApiError] when the API request fails
     # @example List active goals
     #   client.goal.list
     #   #=> [{ id: 1, title: "Complete project", ... }]
@@ -39,17 +41,21 @@ module Bloomy
     #     archived: [{ id: 2, ... }]
     #   }
     def list(user_id = self.user_id, archived: false)
-      active_goals = @conn.get("rocks/user/#{user_id}?include_origin=true").body.map do |goal|
+      response = @conn.get("rocks/user/#{user_id}?include_origin=true")
+      data = handle_response(response, context: "list goals")
+
+      active_goals = data.map do |goal|
+        origins = goal.dig("Origins") || []
         {
-          id: goal["Id"],
-          user_id: goal["Owner"]["Id"],
-          user_name: goal["Owner"]["Name"],
-          title: goal["Name"],
-          created_at: goal["CreateTime"],
-          due_date: goal["DueDate"],
-          status: goal["Complete"] ? "Completed" : "Incomplete",
-          meeting_id: goal["Origins"].empty? ? nil : goal["Origins"][0]["Id"],
-          meeting_title: goal["Origins"].empty? ? nil : goal["Origins"][0]["Name"]
+          id: goal.dig("Id"),
+          user_id: goal.dig("Owner", "Id"),
+          user_name: goal.dig("Owner", "Name"),
+          title: goal.dig("Name"),
+          created_at: goal.dig("CreateTime"),
+          due_date: goal.dig("DueDate"),
+          status: goal.dig("Complete") ? "Completed" : "Incomplete",
+          meeting_id: origins.empty? ? nil : origins.dig(0, "Id"),
+          meeting_title: origins.empty? ? nil : origins.dig(0, "Name")
         }
       end
 
@@ -62,35 +68,41 @@ module Bloomy
     # @param meeting_id [Integer] the ID of the meeting associated with the goal
     # @param user_id [Integer] the ID of the user responsible for the goal (default: initialized user ID)
     # @return [Hash] the newly created goal
+    # @raise [NotFoundError] when meeting is not found
+    # @raise [ApiError] when the API request fails
     # @example
     #   client.goal.create(title: "New Goal", meeting_id: 1)
     #   #=> { goal_id: 1, title: "New Goal", meeting_id: 1, ... }
     def create(title:, meeting_id:, user_id: self.user_id)
       payload = {title: title, accountableUserId: user_id}.to_json
-      response = @conn.post("L10/#{meeting_id}/rocks", payload).body
+      response = @conn.post("L10/#{meeting_id}/rocks", payload)
+      data = handle_response(response, context: "create goal")
 
+      origins = data.dig("Origins") || []
       {
-        id: response["Id"],
+        id: data.dig("Id"),
         user_id: user_id,
-        user_name: response["Owner"]["Name"],
+        user_name: data.dig("Owner", "Name"),
         title: title,
         meeting_id: meeting_id,
-        meeting_title: response["Origins"][0]["Name"],
-        status: COMPLETION_VALUES.key(response["Completion"]).to_s,
-        created_at: response["CreateTime"]
+        meeting_title: origins.dig(0, "Name"),
+        status: COMPLETION_VALUES.key(data.dig("Completion")).to_s,
+        created_at: data.dig("CreateTime")
       }
     end
 
     # Deletes a goal
     #
     # @param goal_id [Integer] the ID of the goal to delete
-    # @return [Boolean] true if deletion was successful, false otherwise
+    # @return [Boolean] true if deletion was successful
+    # @raise [NotFoundError] when goal is not found
+    # @raise [ApiError] when the API request fails
     # @example
     #   client.goal.delete(1)
     #   #=> true
     def delete(goal_id)
       response = @conn.delete("rocks/#{goal_id}")
-      response.success?
+      handle_response!(response, context: "delete goal")
     end
 
     # Updates a goal
@@ -101,6 +113,8 @@ module Bloomy
     # @param status [String, nil] the status value ('on', 'off', or 'complete')
     # @return [Boolean] true if the update was successful
     # @raise [ArgumentError] if an invalid status value is provided
+    # @raise [NotFoundError] when goal is not found
+    # @raise [ApiError] when the API request fails
     # @example
     #   client.goal.update(goal_id: 1, title: "Updated Goal", status: 'on')
     #   #=> true
@@ -114,29 +128,33 @@ module Bloomy
       end
       payload = {title: title, accountableUserId: accountable_user, completion: status}.to_json
       response = @conn.put("rocks/#{goal_id}", payload)
-      response.success?
+      handle_response!(response, context: "update goal")
     end
 
     # Archives a rock with the specified goal ID.
     #
     # @param goal_id [Integer] The ID of the goal/rock to archive
-    # @return [Boolean] Returns true if the archival was successful, false otherwise
+    # @return [Boolean] Returns true if the archival was successful
+    # @raise [NotFoundError] when goal is not found
+    # @raise [ApiError] when the API request fails
     # @example
     #  goals.archive(123) #=> true
     def archive(goal_id)
       response = @conn.put("rocks/#{goal_id}/archive")
-      response.success?
+      handle_response!(response, context: "archive goal")
     end
 
     # Restores a previously archived goal identified by the provided goal ID.
     #
     # @param [String, Integer] goal_id The unique identifier of the goal to restore
-    # @return [Boolean] true if the restore operation was successful, false otherwise
+    # @return [Boolean] true if the restore operation was successful
+    # @raise [NotFoundError] when goal is not found
+    # @raise [ApiError] when the API request fails
     # @example Restoring a goal
     #   goals.restore("123") #=> true
     def restore(goal_id)
       response = @conn.put("rocks/#{goal_id}/restore")
-      response.success?
+      handle_response!(response, context: "restore goal")
     end
 
     private
@@ -145,18 +163,22 @@ module Bloomy
     #
     # @param user_id [Integer] the ID of the user (default is the initialized user ID)
     # @return [Array<Hash>] an array of hashes containing archived goal details
+    # @raise [NotFoundError] when user is not found
+    # @raise [ApiError] when the API request fails
     # @example
     #   goal.send(:get_archived_goals)
     #   #=> [{ id: 1, title: "Archived Goal", created_at: "2024-06-10", ... }, ...]
     def get_archived_goals(user_id = self.user_id)
-      response = @conn.get("archivedrocks/user/#{user_id}").body
-      response.map do |goal|
+      response = @conn.get("archivedrocks/user/#{user_id}")
+      data = handle_response(response, context: "get archived goals")
+
+      data.map do |goal|
         {
-          id: goal["Id"],
-          title: goal["Name"],
-          created_at: goal["CreateTime"],
-          due_date: goal["DueDate"],
-          status: goal["Complete"] ? "Complete" : "Incomplete"
+          id: goal.dig("Id"),
+          title: goal.dig("Name"),
+          created_at: goal.dig("CreateTime"),
+          due_date: goal.dig("DueDate"),
+          status: goal.dig("Complete") ? "Complete" : "Incomplete"
         }
       end
     end

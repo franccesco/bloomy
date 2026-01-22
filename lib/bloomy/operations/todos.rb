@@ -21,6 +21,8 @@ module Bloomy
     # @param meeting_id [Integer, nil] the ID of the meeting
     # @return [Array<Hash>] an array of todo hashes
     # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
+    # @raise [NotFoundError] when user or meeting is not found
+    # @raise [ApiError] when the API request fails
     # @example
     #   # Fetch todos for the current user
     #   client.todo.list
@@ -29,13 +31,15 @@ module Bloomy
       raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both." if user_id && meeting_id
 
       if meeting_id
-        response = @conn.get("l10/#{meeting_id}/todos").body
+        response = @conn.get("l10/#{meeting_id}/todos")
+        data = handle_response(response, context: "list meeting todos")
       else
         user_id ||= self.user_id
-        response = @conn.get("todo/user/#{user_id}").body
+        response = @conn.get("todo/user/#{user_id}")
+        data = handle_response(response, context: "list user todos")
       end
 
-      response.map { |todo| transform_todo(todo) }
+      data.map { |todo| transform_todo(todo) }
     end
 
     # Creates a new todo
@@ -46,19 +50,22 @@ module Bloomy
     # @param user_id [Integer] the ID of the user responsible for the todo (default: initialized user ID)
     # @param notes [String, nil] additional notes for the todo (optional)
     # @return [Hash] the newly created todo hash
+    # @raise [NotFoundError] when meeting is not found
+    # @raise [ApiError] when the API request fails
     # @example
     #   client.todo.create(title: "New Todo", meeting_id: 1, due_date: "2024-06-15")
     #   #=> { id: 1, title: "New Todo", due_date: "2024-06-15", ... }
     def create(title:, meeting_id:, due_date: nil, user_id: self.user_id, notes: nil)
       payload = {title: title, accountableUserId: user_id, notes: notes}
       payload[:dueDate] = due_date if due_date
-      response = @conn.post("L10/#{meeting_id}/todos", payload.to_json).body
+      response = @conn.post("L10/#{meeting_id}/todos", payload.to_json)
+      data = handle_response(response, context: "create todo")
 
       {
-        id: response["Id"],
-        title: response["Name"],
-        notes_url: response["DetailsUrl"],
-        due_date: response["DueDate"],
+        id: data.dig("Id"),
+        title: data.dig("Name"),
+        notes_url: data.dig("DetailsUrl"),
+        due_date: data.dig("DueDate"),
         created_at: DateTime.now.to_s,
         status: "Incomplete"
       }
@@ -68,12 +75,14 @@ module Bloomy
     #
     # @param todo_id [Integer] the ID of the todo to complete
     # @return [Boolean] true if the operation was successful
+    # @raise [NotFoundError] when todo is not found
+    # @raise [ApiError] when the API request fails
     # @example
     #   todo.complete(1)
     #   #=> true
     def complete(todo_id)
       response = @conn.post("todo/#{todo_id}/complete?status=true")
-      response.success?
+      handle_response!(response, context: "complete todo")
     end
 
     # Updates an existing todo
@@ -83,7 +92,8 @@ module Bloomy
     # @param due_date [String, nil] the new due date of the todo (optional)
     # @return [Hash] the updated todo hash
     # @raise [ArgumentError] if no update fields are provided
-    # @raise [RuntimeError] if the update request fails
+    # @raise [NotFoundError] when todo is not found
+    # @raise [ApiError] when the API request fails
     # @example
     #   todo.update(todo_id: 1, title: "Updated Todo", due_date: "2024-11-01")
     #   #=> { id: 1, title: "Updated Todo", due_date: "2024-11-01", ... }
@@ -95,7 +105,7 @@ module Bloomy
       raise ArgumentError, "At least one field must be provided" if payload.empty?
 
       response = @conn.put("todo/#{todo_id}", payload.to_json)
-      raise "Failed to update todo. Status: #{response.status}" unless response.success?
+      handle_response!(response, context: "update todo")
 
       {
         id: todo_id,
@@ -110,15 +120,16 @@ module Bloomy
     #
     # @param todo_id [Integer] The ID of the todo item to retrieve.
     # @return [Hash] The requested todo hash
-    # @raise [RuntimeError] If the request to retrieve the todo details fails.
+    # @raise [NotFoundError] when todo is not found
+    # @raise [ApiError] when the API request fails
     # @example
     #   client.todo.details(1)
     #   #=> { id: 1, title: "Updated Todo", due_date: "2024-11-01", ... }
     def details(todo_id)
       response = @conn.get("todo/#{todo_id}")
-      raise "Failed to get todo details. Status: #{response.status}" unless response.success?
+      data = handle_response(response, context: "get todo details")
 
-      transform_todo(response.body)
+      transform_todo(data)
     end
 
     private
@@ -129,13 +140,13 @@ module Bloomy
     # @return [Hash] the transformed todo hash
     def transform_todo(todo)
       {
-        id: todo["Id"],
-        title: todo["Name"],
-        notes_url: todo["DetailsUrl"],
-        due_date: todo["DueDate"],
-        created_at: todo["CreateTime"],
-        completed_at: todo["CompleteTime"],
-        status: todo["Complete"] ? "Complete" : "Incomplete"
+        id: todo.dig("Id"),
+        title: todo.dig("Name"),
+        notes_url: todo.dig("DetailsUrl"),
+        due_date: todo.dig("DueDate"),
+        created_at: todo.dig("CreateTime"),
+        completed_at: todo.dig("CompleteTime"),
+        status: todo.dig("Complete") ? "Complete" : "Incomplete"
       }
     end
   end

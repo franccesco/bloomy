@@ -20,16 +20,19 @@ module Bloomy
     # Retrieves the current week details
     #
     # @return [Hash] a hash containing current week details
+    # @raise [ApiError] when the API request fails
     # @example
     #   client.scorecard.current_week
     #   #=> { id: 123, week_number: 24, week_start: "2024-06-10", week_end: "2024-06-16" }
     def current_week
-      response = @conn.get("weeks/current").body
+      response = @conn.get("weeks/current")
+      data = handle_response(response, context: "get current week")
+
       {
-        id: response["Id"],
-        week_number: response["ForWeekNumber"],
-        week_start: response["LocalDate"]["Date"],
-        week_end: response["ForWeek"]
+        id: data.dig("Id"),
+        week_number: data.dig("ForWeekNumber"),
+        week_start: data.dig("LocalDate", "Date"),
+        week_end: data.dig("ForWeek")
       }
     end
 
@@ -40,6 +43,8 @@ module Bloomy
     # @param show_empty [Boolean] whether to include scores with nil values (default: false)
     # @param week_offset [Integer, nil] offset for the week number to filter scores
     # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
+    # @raise [NotFoundError] when user or meeting is not found
+    # @raise [ApiError] when the API request fails
     # @return [Array<Hash>] an array of scorecard hashes
     # @example
     #   # Fetch scorecards for the current user
@@ -58,23 +63,25 @@ module Bloomy
       raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both." if user_id && meeting_id
 
       if meeting_id
-        response = @conn.get("scorecard/meeting/#{meeting_id}").body
+        response = @conn.get("scorecard/meeting/#{meeting_id}")
+        data = handle_response(response, context: "get meeting scorecard")
       else
         user_id ||= self.user_id
-        response = @conn.get("scorecard/user/#{user_id}").body
+        response = @conn.get("scorecard/user/#{user_id}")
+        data = handle_response(response, context: "get user scorecard")
       end
 
-      scorecards = response["Scores"].map do |scorecard|
+      scorecards = (data.dig("Scores") || []).map do |scorecard|
         {
-          id: scorecard["Id"],
-          measurable_id: scorecard["MeasurableId"],
-          accountable_user_id: scorecard["AccountableUserId"],
-          title: scorecard["MeasurableName"],
-          target: scorecard["Target"],
-          value: scorecard["Measured"],
-          week: scorecard["Week"],
-          week_id: scorecard["ForWeek"],
-          updated_at: scorecard["DateEntered"]
+          id: scorecard.dig("Id"),
+          measurable_id: scorecard.dig("MeasurableId"),
+          accountable_user_id: scorecard.dig("AccountableUserId"),
+          title: scorecard.dig("MeasurableName"),
+          target: scorecard.dig("Target"),
+          value: scorecard.dig("Measured"),
+          week: scorecard.dig("Week"),
+          week_id: scorecard.dig("ForWeek"),
+          updated_at: scorecard.dig("DateEntered")
         }
       end
 
@@ -84,7 +91,7 @@ module Bloomy
         scorecards.select! { |scorecard| scorecard[:week_id] == week_id }
       end
 
-      scorecards.select! { |scorecard| scorecard[:value] || show_empty } unless show_empty
+      scorecards.reject! { |scorecard| scorecard[:value].nil? } unless show_empty
       scorecards
     end
 
@@ -94,6 +101,8 @@ module Bloomy
     # @param user_id [Integer, nil] the ID of the user (defaults to initialized user_id)
     # @param week_offset [Integer] offset for the week number to filter scores (default: 0)
     # @return [Hash, nil] the scorecard hash if found, nil otherwise
+    # @raise [NotFoundError] when user is not found
+    # @raise [ApiError] when the API request fails
     # @example
     #   client.scorecard.get(measurable_id: 123)
     #   #=> { id: 1, measurable_id: 123, title: "Sales", target: 100, value: 95, ... }
@@ -108,6 +117,8 @@ module Bloomy
     # @param score [Numeric] the score to be assigned to the measurable item
     # @param week_offset [Integer] the number of weeks to offset from the current week (default: 0)
     # @return [Boolean] true if the score was successfully updated
+    # @raise [NotFoundError] when measurable is not found
+    # @raise [ApiError] when the API request fails
     # @example
     #   client.scorecard.score(measurable_id: 123, score: 5)
     #   #=> true
@@ -116,7 +127,7 @@ module Bloomy
       week_id = week_data[:week_number] + week_offset
 
       response = @conn.put("measurables/#{measurable_id}/week/#{week_id}", {value: score}.to_json)
-      response.success?
+      handle_response!(response, context: "update scorecard score")
     end
   end
 end
