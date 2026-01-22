@@ -8,7 +8,10 @@ module Bloomy
   class Goal
     include Bloomy::Utilities::UserIdUtility
 
+    # @return [Hash] Maps status symbols to API completion values
     COMPLETION_VALUES = {complete: 2, on: 1, off: 0}.freeze
+
+    # @return [Hash] Maps status symbols to API status strings
     STATUS_MAPPINGS = {on: "OnTrack", off: "AtRisk", complete: "Complete"}.freeze
 
     # Initializes a new Goal instance
@@ -81,10 +84,10 @@ module Bloomy
     # Deletes a goal
     #
     # @param goal_id [Integer] the ID of the goal to delete
-    # @return [Hash] a hash containing the status of the delete operation
+    # @return [Boolean] true if deletion was successful, false otherwise
     # @example
     #   client.goal.delete(1)
-    #   #=> { status: 200 }
+    #   #=> true
     def delete(goal_id)
       response = @conn.delete("rocks/#{goal_id}")
       response.success?

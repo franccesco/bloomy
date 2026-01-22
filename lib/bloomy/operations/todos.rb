@@ -123,6 +123,10 @@ module Bloomy
 
     private
 
+    # Transforms API response hash into standardized todo hash
+    #
+    # @param todo [Hash] the raw API response hash
+    # @return [Hash] the transformed todo hash
     def transform_todo(todo)
       {
         id: todo["Id"],
