@@ -64,5 +64,24 @@ RSpec.describe "User Operations" do
         expect(user[:image_url]).to be_a(String)
       end
     end
+
+    it "returns all users in organization" do
+      users = @client.user.all(include_placeholders: true)
+      expect(users).to be_an(Array)
+      expect(users).not_to be_empty
+      users.each do |user|
+        expect(user[:id]).to be_a(Integer)
+        expect(user[:name]).to be_a(String)
+        expect(user[:email]).to be_a(String)
+        expect(user[:image_url]).to be_a(String)
+      end
+    end
+
+    it "returns all users including placeholders" do
+      users_without = @client.user.all
+      users_with = @client.user.all(include_placeholders: true)
+      expect(users_with).to be_an(Array)
+      expect(users_with.size).to be >= users_without.size
+    end
   end
 end

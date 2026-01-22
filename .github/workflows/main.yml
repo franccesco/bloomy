@@ -17,8 +17,8 @@ jobs:
           - '3.2.2'
 
     env:
-      USERNAME: ${{ secrets.USERNAME }}
-      PASSWORD: ${{ secrets.PASSWORD }}
+      BG_USERNAME: ${{ secrets.BG_USERNAME }}
+      BG_PASSWORD: ${{ secrets.BG_PASSWORD }}
       MEETING_ID: ${{ vars.MEETING_ID }}
       ISSUE_ID: ${{ vars.ISSUE_ID }}
       ATTENDEE_ID: ${{ vars.ATTENDEE_ID }}

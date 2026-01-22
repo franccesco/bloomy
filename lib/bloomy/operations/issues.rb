@@ -94,5 +94,25 @@ module Bloomy
         notes_url: response.body["DetailsUrl"]
       }
     end
+
+    # Updates an existing issue's title or notes
+    #
+    # @param issue_id [Integer] Unique identifier of the issue to update
+    # @param title [String, nil] New title for the issue (optional)
+    # @param notes [String, nil] New notes for the issue (optional)
+    # @return [Hash] Updated issue details
+    # @raise [ArgumentError] When neither title nor notes is provided
+    # @raise [RuntimeError] When the API request fails
+    def update(issue_id:, title: nil, notes: nil)
+      raise ArgumentError, "Provide at least one field to update" if title.nil? && notes.nil?
+
+      payload = {}
+      payload[:title] = title if title
+      payload[:notes] = notes if notes
+      response = @conn.put("issues/#{issue_id}", payload.to_json)
+      raise "Failed to update issue" unless response.success?
+
+      details(issue_id)
+    end
   end
 end

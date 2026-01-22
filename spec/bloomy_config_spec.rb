@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe "Config Operations" do
-  let(:username) { ENV.fetch("USERNAME", nil) }
-  let(:password) { ENV.fetch("PASSWORD", nil) }
+  let(:username) { ENV.fetch("BG_USERNAME", nil) }
+  let(:password) { ENV.fetch("BG_PASSWORD", nil) }
   let(:config_file) { File.expand_path("~/.bloomy/config.yaml") }
   let(:config) { Bloomy::Configuration.new }
 
