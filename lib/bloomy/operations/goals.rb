@@ -8,6 +8,9 @@ module Bloomy
   class Goal
     include Bloomy::Utilities::UserIdUtility
 
+    COMPLETION_VALUES = {complete: 2, on: 1, off: 0}.freeze
+    STATUS_MAPPINGS = {on: "OnTrack", off: "AtRisk", complete: "Complete"}.freeze
+
     # Initializes a new Goal instance
     #
     # @param conn [Object] the connection object to interact with the API
@@ -70,7 +73,7 @@ module Bloomy
         title: title,
         meeting_id: meeting_id,
         meeting_title: response["Origins"][0]["Name"],
-        status: {complete: 2, on: 1, off: 0}.key(response["Completion"]).to_s,
+        status: COMPLETION_VALUES.key(response["Completion"]).to_s,
         created_at: response["CreateTime"]
       }
     end
@@ -100,12 +103,11 @@ module Bloomy
     #   #=> true
     def update(goal_id:, title: nil, accountable_user: user_id, status: nil)
       if status
-        valid_status = {on: "OnTrack", off: "AtRisk", complete: "Complete"}
         status_key = status.downcase.to_sym
-        unless valid_status.key?(status_key)
+        unless STATUS_MAPPINGS.key?(status_key)
           raise ArgumentError, "Invalid status value. Must be 'on', 'off', or 'complete'."
         end
-        status = valid_status[status_key]
+        status = STATUS_MAPPINGS[status_key]
       end
       payload = {title: title, accountableUserId: accountable_user, completion: status}.to_json
       response = @conn.put("rocks/#{goal_id}", payload)

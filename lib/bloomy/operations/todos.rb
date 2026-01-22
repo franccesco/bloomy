@@ -35,17 +35,7 @@ module Bloomy
         response = @conn.get("todo/user/#{user_id}").body
       end
 
-      response.map do |todo|
-        {
-          id: todo["Id"],
-          title: todo["Name"],
-          notes_url: todo["DetailsUrl"],
-          due_date: todo["DueDate"],
-          created_at: todo["CreateTime"],
-          completed_at: todo["CompleteTime"],
-          status: todo["Complete"] ? "Complete" : "Incomplete"
-        }
-      end
+      response.map { |todo| transform_todo(todo) }
     end
 
     # Creates a new todo
@@ -62,7 +52,7 @@ module Bloomy
     def create(title:, meeting_id:, due_date: nil, user_id: self.user_id, notes: nil)
       payload = {title: title, accountableUserId: user_id, notes: notes}
       payload[:dueDate] = due_date if due_date
-      response = @conn.post("/api/v1/L10/#{meeting_id}/todos", payload.to_json).body
+      response = @conn.post("L10/#{meeting_id}/todos", payload.to_json).body
 
       {
         id: response["Id"],
@@ -82,7 +72,7 @@ module Bloomy
     #   todo.complete(1)
     #   #=> true
     def complete(todo_id)
-      response = @conn.post("/api/v1/todo/#{todo_id}/complete?status=true")
+      response = @conn.post("todo/#{todo_id}/complete?status=true")
       response.success?
     end
 
@@ -104,8 +94,8 @@ module Bloomy
 
       raise ArgumentError, "At least one field must be provided" if payload.empty?
 
-      response = @conn.put("/api/v1/todo/#{todo_id}", payload.to_json)
-      raise "Failed to update todo. Status: #{response.status}" unless response.status == 200
+      response = @conn.put("todo/#{todo_id}", payload.to_json)
+      raise "Failed to update todo. Status: #{response.status}" unless response.success?
 
       {
         id: todo_id,
@@ -125,10 +115,15 @@ module Bloomy
     #   client.todo.details(1)
     #   #=> { id: 1, title: "Updated Todo", due_date: "2024-11-01", ... }
     def details(todo_id)
-      response = @conn.get("/api/v1/todo/#{todo_id}")
+      response = @conn.get("todo/#{todo_id}")
       raise "Failed to get todo details. Status: #{response.status}" unless response.success?
 
-      todo = response.body
+      transform_todo(response.body)
+    end
+
+    private
+
+    def transform_todo(todo)
       {
         id: todo["Id"],
         title: todo["Name"],
