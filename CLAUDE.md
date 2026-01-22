@@ -65,5 +65,6 @@ All API responses are returned as Hash structures. Operations use the shared Far
 
 - StandardRB enforces Ruby Style Guide
 - YARD documentation required for classes/methods with `@examples`
+- Always update YARD documentation when making code changes to keep docs aligned with implementation
 - Pre-commit hooks enforce formatting (`pre-commit install`)
 - Conventional Commits for commit messages
