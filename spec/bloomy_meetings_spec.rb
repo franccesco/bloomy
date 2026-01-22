@@ -72,4 +72,10 @@ RSpec.describe "Meeting Operations" do
       expect(details[:metrics]).to all(be_a(Hash))
     end
   end
+
+  context "error handling" do
+    it "raises ApiError for invalid meeting ID on delete" do
+      expect { @client.meeting.delete(999999999) }.to raise_error(Bloomy::ApiError)
+    end
+  end
 end

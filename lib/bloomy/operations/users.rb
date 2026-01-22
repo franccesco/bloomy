@@ -21,12 +21,16 @@ module Bloomy
     # @param positions [Boolean] whether to include positions (default: false)
     # @param all [Boolean] whether to include both direct reports and positions (default: false)
     # @return [Hash] a hash containing user details
+    # @raise [NotFoundError] when user is not found
+    # @raise [ApiError] when the API request fails
     def details(user_id = self.user_id, direct_reports: false, positions: false, all: false)
-      response = @conn.get("users/#{user_id}").body
+      response = @conn.get("users/#{user_id}")
+      data = handle_response(response, context: "get user details")
+
       user_details = {
-        id: response["Id"],
-        name: response["Name"],
-        image_url: response["ImageUrl"]
+        id: data.dig("Id"),
+        name: data.dig("Name"),
+        image_url: data.dig("ImageUrl")
       }
 
       user_details[:direct_reports] = direct_reports(user_id) if direct_reports || all
@@ -38,13 +42,17 @@ module Bloomy
     #
     # @param user_id [Integer] the ID of the user (default: the current user ID)
     # @return [Array<Hash>] an array of hashes containing direct report details
+    # @raise [NotFoundError] when user is not found
+    # @raise [ApiError] when the API request fails
     def direct_reports(user_id = self.user_id)
-      direct_reports_response = @conn.get("users/#{user_id}/directreports").body
-      direct_reports_response.map do |report|
+      response = @conn.get("users/#{user_id}/directreports")
+      data = handle_response(response, context: "get direct reports")
+
+      data.map do |report|
         {
-          name: report["Name"],
-          id: report["Id"],
-          image_url: report["ImageUrl"]
+          name: report.dig("Name"),
+          id: report.dig("Id"),
+          image_url: report.dig("ImageUrl")
         }
       end
     end
@@ -53,12 +61,16 @@ module Bloomy
     #
     # @param user_id [Integer] the ID of the user (default: the current user ID)
     # @return [Array<Hash>] an array of hashes containing position details
+    # @raise [NotFoundError] when user is not found
+    # @raise [ApiError] when the API request fails
     def positions(user_id = self.user_id)
-      position_response = @conn.get("users/#{user_id}/seats").body
-      position_response.map do |position|
+      response = @conn.get("users/#{user_id}/seats")
+      data = handle_response(response, context: "get user positions")
+
+      data.map do |position|
         {
-          name: position["Group"]["Position"]["Name"],
-          id: position["Group"]["Position"]["Id"]
+          name: position.dig("Group", "Position", "Name"),
+          id: position.dig("Group", "Position", "Id")
         }
       end
     end
@@ -67,16 +79,19 @@ module Bloomy
     #
     # @param term [String] the search term
     # @return [Array<Hash>] an array of hashes containing search results
+    # @raise [ApiError] when the API request fails
     def search(term)
-      response = @conn.get("search/user", term: term).body
-      response.map do |user|
+      response = @conn.get("search/user", term: term)
+      data = handle_response(response, context: "search users")
+
+      data.map do |user|
         {
-          id: user["Id"],
-          name: user["Name"],
-          description: user["Description"],
-          email: user["Email"],
-          organization_id: user["OrganizationId"],
-          image_url: user["ImageUrl"]
+          id: user.dig("Id"),
+          name: user.dig("Name"),
+          description: user.dig("Description"),
+          email: user.dig("Email"),
+          organization_id: user.dig("OrganizationId"),
+          image_url: user.dig("ImageUrl")
         }
       end
     end
@@ -85,18 +100,21 @@ module Bloomy
     #
     # @param include_placeholders [Boolean] whether to include placeholder users (default: false)
     # @return [Array<Hash>] an array of hashes containing user details
+    # @raise [ApiError] when the API request fails
     def all(include_placeholders: false)
-      users = @conn.get("search/all", term: "%").body
-      users
-        .select { |user| user["ResultType"] == "User" }
-        .reject { |user| !include_placeholders && user["ImageUrl"] == "/i/userplaceholder" }
+      response = @conn.get("search/all", term: "%")
+      data = handle_response(response, context: "get all users")
+
+      data
+        .select { |user| user.dig("ResultType") == "User" }
+        .select { |user| include_placeholders || user.dig("ImageUrl") != "/i/userplaceholder" }
         .map do |user|
           {
-            id: user["Id"],
-            name: user["Name"],
-            email: user["Email"],
-            position: user["Description"],
-            image_url: user["ImageUrl"]
+            id: user.dig("Id"),
+            name: user.dig("Name"),
+            email: user.dig("Email"),
+            position: user.dig("Description"),
+            image_url: user.dig("ImageUrl")
           }
         end
     end

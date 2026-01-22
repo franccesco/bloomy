@@ -22,19 +22,22 @@ module Bloomy
     #
     # @param issue_id [Integer] Unique identifier of the issue
     # @return [Hash] Detailed information about the issue
-    # @raise [ApiError] When the API request fails or returns invalid data
+    # @raise [NotFoundError] when issue is not found
+    # @raise [ApiError] when the API request fails
     def details(issue_id)
-      response = @conn.get("issues/#{issue_id}").body
+      response = @conn.get("issues/#{issue_id}")
+      data = handle_response(response, context: "get issue details")
+
       {
-        id: response["Id"],
-        title: response["Name"],
-        notes_url: response["DetailsUrl"],
-        created_at: response["CreateTime"],
-        completed_at: response["CloseTime"],
-        meeting_id: response["OriginId"],
-        meeting_title: response["Origin"],
-        user_id: response["Owner"]["Id"],
-        user_name: response["Owner"]["Name"]
+        id: data.dig("Id"),
+        title: data.dig("Name"),
+        notes_url: data.dig("DetailsUrl"),
+        created_at: data.dig("CreateTime"),
+        completed_at: data.dig("CloseTime"),
+        meeting_id: data.dig("OriginId"),
+        meeting_title: data.dig("Origin"),
+        user_id: data.dig("Owner", "Id"),
+        user_name: data.dig("Owner", "Name")
       }
     end
 
@@ -44,22 +47,29 @@ module Bloomy
     # @param meeting_id [Integer, nil] Unique identifier of the meeting (optional)
     # @return [Array<Hash>] List of issues matching the filter criteria
     # @raise [ArgumentError] When both user_id and meeting_id are provided
-    # @raise [ApiError] When the API request fails or returns invalid data
+    # @raise [NotFoundError] when user or meeting is not found
+    # @raise [ApiError] when the API request fails
     def list(user_id: nil, meeting_id: nil)
       if user_id && meeting_id
         raise ArgumentError, "Please provide either `user_id` or `meeting_id`, not both."
       end
 
-      response = meeting_id ? @conn.get("l10/#{meeting_id}/issues").body : @conn.get("issues/users/#{user_id || self.user_id}").body
+      if meeting_id
+        response = @conn.get("l10/#{meeting_id}/issues")
+        data = handle_response(response, context: "list meeting issues")
+      else
+        response = @conn.get("issues/users/#{user_id || self.user_id}")
+        data = handle_response(response, context: "list user issues")
+      end
 
-      response.map do |issue|
+      data.map do |issue|
         {
-          id: issue["Id"],
-          title: issue["Name"],
-          notes_url: issue["DetailsUrl"],
-          created_at: issue["CreateTime"],
-          meeting_id: issue["OriginId"],
-          meeting_title: issue["Origin"]
+          id: issue.dig("Id"),
+          title: issue.dig("Name"),
+          notes_url: issue.dig("DetailsUrl"),
+          created_at: issue.dig("CreateTime"),
+          meeting_id: issue.dig("OriginId"),
+          meeting_title: issue.dig("Origin")
         }
       end
     end
@@ -67,11 +77,12 @@ module Bloomy
     # Marks an issue as completed/solved
     #
     # @param issue_id [Integer] Unique identifier of the issue to be solved
-    # @return [Boolean] true if issue was successfully solved, false otherwise
-    # @raise [ApiError] When the API request fails
+    # @return [Boolean] true if issue was successfully solved
+    # @raise [NotFoundError] when issue is not found
+    # @raise [ApiError] when the API request fails
     def solve(issue_id)
       response = @conn.post("issues/#{issue_id}/complete", {complete: true}.to_json)
-      response.success?
+      handle_response!(response, context: "solve issue")
     end
 
     # Creates a new issue in the system
@@ -81,17 +92,19 @@ module Bloomy
     # @param user_id [Integer] Unique identifier of the issue owner (defaults to current user)
     # @param notes [String, nil] Additional notes or description for the issue (optional)
     # @return [Hash] Newly created issue details
-    # @raise [ApiError] When the API request fails or returns invalid data
-    # @raise [ArgumentError] When required parameters are missing or invalid
+    # @raise [NotFoundError] when meeting is not found
+    # @raise [ApiError] when the API request fails
     def create(meeting_id:, title:, user_id: self.user_id, notes: nil)
       response = @conn.post("issues/create", {title: title, meetingid: meeting_id, ownerid: user_id, notes: notes}.to_json)
+      data = handle_response(response, context: "create issue")
+
       {
-        id: response.body["Id"],
-        meeting_id: response.body["OriginId"],
-        meeting_title: response.body["Origin"],
-        title: response.body["Name"],
-        user_id: response.body["Owner"]["Id"],
-        notes_url: response.body["DetailsUrl"]
+        id: data.dig("Id"),
+        meeting_id: data.dig("OriginId"),
+        meeting_title: data.dig("Origin"),
+        title: data.dig("Name"),
+        user_id: data.dig("Owner", "Id"),
+        notes_url: data.dig("DetailsUrl")
       }
     end
 
@@ -102,7 +115,8 @@ module Bloomy
     # @param notes [String, nil] New notes for the issue (optional)
     # @return [Hash] Updated issue details
     # @raise [ArgumentError] When neither title nor notes is provided
-    # @raise [RuntimeError] When the API request fails
+    # @raise [NotFoundError] when issue is not found
+    # @raise [ApiError] when the API request fails
     def update(issue_id:, title: nil, notes: nil)
       raise ArgumentError, "Provide at least one field to update" if title.nil? && notes.nil?
 
@@ -110,7 +124,7 @@ module Bloomy
       payload[:title] = title if title
       payload[:notes] = notes if notes
       response = @conn.put("issues/#{issue_id}", payload.to_json)
-      raise "Failed to update issue" unless response.success?
+      handle_response!(response, context: "update issue")
 
       details(issue_id)
     end

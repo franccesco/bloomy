@@ -24,6 +24,7 @@ module Bloomy
     # @param password [String] the password for authentication
     # @param store_key [Boolean] whether to store the API key (default: false)
     # @return [void]
+    # @raise [AuthenticationError] if authentication fails
     # @note This method only fetches and stores the API key if it is currently nil.
     #   It saves the key under '~/.bloomy/config.yaml' if 'store_key: true' is passed.
     # @example
@@ -42,6 +43,7 @@ module Bloomy
     # @param username [String] the username for authentication
     # @param password [String] the password for authentication
     # @return [String] the fetched API key
+    # @raise [AuthenticationError] if authentication fails
     def fetch_api_key(username, password)
       conn = Faraday.new(url: "https://app.bloomgrowth.com")
       response = conn.post("/Token") do |req|
@@ -54,10 +56,11 @@ module Bloomy
       end
 
       unless response.success?
-        raise "Failed to fetch API key: #{response.status} - #{response.body}"
+        raise AuthenticationError, "Failed to authenticate: #{response.status}"
       end
 
-      JSON.parse(response.body)["access_token"]
+      parsed_body = JSON.parse(response.body)
+      parsed_body.dig("access_token")
     end
 
     # Stores the API key in a local configuration file

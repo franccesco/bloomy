@@ -84,4 +84,10 @@ RSpec.describe "User Operations" do
       expect(users_with.size).to be >= users_without.size
     end
   end
+
+  context "error handling" do
+    it "raises ApiError for invalid user ID" do
+      expect { @client.user.details(999999999) }.to raise_error(Bloomy::ApiError)
+    end
+  end
 end

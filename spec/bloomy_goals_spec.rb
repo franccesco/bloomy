@@ -77,4 +77,10 @@ RSpec.describe "Goal Operations" do
       expect(response).to be true
     end
   end
+
+  context "error handling" do
+    it "raises ArgumentError for invalid status value" do
+      expect { @client.goal.update(goal_id: 1, status: "invalid") }.to raise_error(ArgumentError)
+    end
+  end
 end
