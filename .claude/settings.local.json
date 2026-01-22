@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc:*)",
+      "Bash(bundle exec rake:*)",
+      "Bash(bundle exec standardrb:*)",
+      "Bash(bundle exec yard:*)"
+    ]
+  }
+}
