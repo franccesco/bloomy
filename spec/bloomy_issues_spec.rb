@@ -39,6 +39,16 @@ RSpec.describe "Issue Operations" do
       expect(issues.first).to be_a(Hash)
     end
 
+    it "updates an issue title" do
+      updated = @client.issue.update(issue_id: @issue_id, title: "Updated Issue Title")
+      expect(updated).to be_a(Hash)
+      expect(updated[:title]).to eq("Updated Issue Title")
+    end
+
+    it "raises ArgumentError when no fields provided" do
+      expect { @client.issue.update(issue_id: @issue_id) }.to raise_error(ArgumentError)
+    end
+
     it "solves an issue" do
       response = @client.issue.solve(@issue_id)
       expect(response).to be true
