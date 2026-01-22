@@ -46,4 +46,10 @@ RSpec.describe "Scorecard Operations" do
       expect(scorecard).to be_nil
     end
   end
+
+  context "error handling" do
+    it "raises ArgumentError when providing both user_id and meeting_id" do
+      expect { @client.scorecard.list(user_id: 1, meeting_id: 1) }.to raise_error(ArgumentError)
+    end
+  end
 end

@@ -54,4 +54,14 @@ RSpec.describe "Issue Operations" do
       expect(response).to be true
     end
   end
+
+  context "error handling" do
+    it "raises ApiError for invalid issue ID" do
+      expect { @client.issue.details(999999999) }.to raise_error(Bloomy::ApiError)
+    end
+
+    it "raises ArgumentError when providing both user_id and meeting_id" do
+      expect { @client.issue.list(user_id: 1, meeting_id: 1) }.to raise_error(ArgumentError)
+    end
+  end
 end

@@ -55,4 +55,14 @@ RSpec.describe "Headline Operations" do
       expect(status).to be true
     end
   end
+
+  context "error handling" do
+    it "raises ApiError for invalid headline ID" do
+      expect { @client.headline.details(999999999) }.to raise_error(Bloomy::ApiError)
+    end
+
+    it "raises ArgumentError when providing both user_id and meeting_id" do
+      expect { @client.headline.list(user_id: 1, meeting_id: 1) }.to raise_error(ArgumentError)
+    end
+  end
 end
