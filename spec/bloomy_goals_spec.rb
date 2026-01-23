@@ -3,12 +3,12 @@
 RSpec.describe "Goal Operations" do
   before(:all) do
     @client = Bloomy::Client.new
-    @meeting_details = @client.meeting.create("Test Meeting")
-    @created_goal = @client.goal.create(title: "Test Goal", meeting_id: @meeting_details[:meeting_id])
+    @meeting_details = @client.meeting.create(title: "Test Meeting")
+    @created_goal = @client.goal.create(title: "Test Goal", meeting_id: @meeting_details[:id])
   end
 
   after(:all) do
-    @client.meeting.delete(@meeting_details[:meeting_id])
+    @client.meeting.delete(@meeting_details[:id])
   end
 
   context "when interacting with goals API" do
@@ -18,7 +18,7 @@ RSpec.describe "Goal Operations" do
 
       expect(@created_goal[:id]).to be_a(Integer)
       expect(@created_goal[:title]).to be_a(String)
-      expect(@created_goal[:created_at]).to be_a(String)
+      expect(@created_goal[:created_at]).to be_a(DateTime)
       expect(@created_goal[:status]).to match(/on|off/)
       expect(@created_goal[:meeting_id]).to be_a(Integer)
       expect(@created_goal[:meeting_title]).to be_a(String)
@@ -38,18 +38,19 @@ RSpec.describe "Goal Operations" do
       expect(@created_goal[:meeting_title]).to be_a(String)
       expect(@created_goal[:user_id]).to be_a(Integer)
       expect(@created_goal[:user_name]).to be_a(String)
-      expect(@created_goal[:created_at]).to be_a(String)
-
-      expect { DateTime.parse(@created_goal[:created_at]) }.not_to raise_error
+      expect(@created_goal[:created_at]).to be_a(DateTime)
     end
 
     it "updates the created goal" do
       response = @client.goal.update(goal_id: @created_goal[:id], title: "On Goal", status: "on")
-      expect(response).to be true
+      expect(response).to be_a(Hash)
+      expect(response[:id]).to eq(@created_goal[:id])
+
       response = @client.goal.update(goal_id: @created_goal[:id], title: "Off Goal", status: "off")
-      expect(response).to be true
+      expect(response).to be_a(Hash)
+
       response = @client.goal.update(goal_id: @created_goal[:id], title: "Complete Goal", status: "complete")
-      expect(response).to be true
+      expect(response).to be_a(Hash)
     end
 
     it "archives the created goal" do
