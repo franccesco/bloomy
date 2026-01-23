@@ -4,7 +4,7 @@ RSpec.describe "Headline Operations" do
   # Set up a test meeting and tear it down
   before(:all) do
     @client = Bloomy::Client.new
-    @meeting_id = @client.meeting.create("Test Meeting")[:meeting_id]
+    @meeting_id = @client.meeting.create(title: "Test Meeting")[:id]
   end
 
   after(:all) do
@@ -22,8 +22,9 @@ RSpec.describe "Headline Operations" do
     end
 
     it "updates a headline" do
-      status = @client.headline.update(headline_id: @headline_id, title: "Updated Headline")
-      expect(status).to be true
+      response = @client.headline.update(headline_id: @headline_id, title: "Updated Headline")
+      expect(response).to be_a(Hash)
+      expect(response[:title]).to eq("Updated Headline")
     end
 
     it "gets headline details" do

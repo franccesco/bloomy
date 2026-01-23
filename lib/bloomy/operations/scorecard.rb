@@ -9,6 +9,7 @@ module Bloomy
   #   This class is already initialized via the client and usable as `client.scorecard.method`
   class Scorecard
     include Bloomy::Utilities::UserIdUtility
+    include Bloomy::Utilities::Transform
 
     # Initializes a new Scorecard instance
     #
@@ -19,7 +20,7 @@ module Bloomy
 
     # Retrieves the current week details
     #
-    # @return [Hash] a hash containing current week details
+    # @return [HashWithIndifferentAccess] a hash containing current week details
     # @raise [ApiError] when the API request fails
     # @example
     #   client.scorecard.current_week
@@ -28,12 +29,12 @@ module Bloomy
       response = @conn.get("weeks/current")
       data = handle_response(response, context: "get current week")
 
-      {
+      transform_response({
         id: data.dig("Id"),
         week_number: data.dig("ForWeekNumber"),
         week_start: data.dig("LocalDate", "Date"),
         week_end: data.dig("ForWeek")
-      }
+      })
     end
 
     # Retrieves the scorecards for a user or a meeting.
@@ -45,7 +46,7 @@ module Bloomy
     # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
     # @raise [NotFoundError] when user or meeting is not found
     # @raise [ApiError] when the API request fails
-    # @return [Array<Hash>] an array of scorecard hashes
+    # @return [Array<HashWithIndifferentAccess>] an array of scorecard hashes
     # @example
     #   # Fetch scorecards for the current user
     #   client.scorecard.list
@@ -71,7 +72,7 @@ module Bloomy
         data = handle_response(response, context: "get user scorecard")
       end
 
-      scorecards = (data.dig("Scores") || []).map do |scorecard|
+      scorecards = transform_array((data.dig("Scores") || []).map do |scorecard|
         {
           id: scorecard.dig("Id"),
           measurable_id: scorecard.dig("MeasurableId"),
@@ -83,7 +84,7 @@ module Bloomy
           week_id: scorecard.dig("ForWeek"),
           updated_at: scorecard.dig("DateEntered")
         }
-      end
+      end)
 
       if week_offset
         week_data = current_week
@@ -100,7 +101,7 @@ module Bloomy
     # @param measurable_id [Integer] the ID of the measurable item
     # @param user_id [Integer, nil] the ID of the user (defaults to initialized user_id)
     # @param week_offset [Integer] offset for the week number to filter scores (default: 0)
-    # @return [Hash, nil] the scorecard hash if found, nil otherwise
+    # @return [HashWithIndifferentAccess, nil] the scorecard hash if found, nil otherwise
     # @raise [NotFoundError] when user is not found
     # @raise [ApiError] when the API request fails
     # @example

@@ -11,8 +11,9 @@ RSpec.describe "Scorecard Operations" do
       expect(week).to be_a(Hash)
       expect(week[:id]).to be_a(Integer)
       expect(week[:week_number]).to be_a(Integer)
-      expect(week[:week_start]).to be_a(String)
-      expect(week[:week_end]).to be_a(String)
+      # week_start and week_end can be DateTime or nil
+      expect(week.key?(:week_start)).to be true
+      expect(week.key?(:week_end)).to be true
     end
 
     it "lists scorecards for the current user" do

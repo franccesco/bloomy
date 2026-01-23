@@ -7,6 +7,8 @@ module Bloomy
   # Class to handle all the operations related to todos
   class Todo
     include Bloomy::Utilities::UserIdUtility
+    include Bloomy::Utilities::Transform
+    include Bloomy::Utilities::Validation
 
     # Initializes a new Todo instance
     #
@@ -19,7 +21,7 @@ module Bloomy
     #
     # @param user_id [Integer, nil] the ID of the user (default is the initialized user ID)
     # @param meeting_id [Integer, nil] the ID of the meeting
-    # @return [Array<Hash>] an array of todo hashes
+    # @return [Array<HashWithIndifferentAccess>] an array of todo hashes
     # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
     # @raise [NotFoundError] when user or meeting is not found
     # @raise [ApiError] when the API request fails
@@ -39,7 +41,7 @@ module Bloomy
         data = handle_response(response, context: "list user todos")
       end
 
-      data.map { |todo| transform_todo(todo) }
+      transform_array(data.map { |todo| build_todo_hash(todo) })
     end
 
     # Creates a new todo
@@ -49,26 +51,30 @@ module Bloomy
     # @param due_date [String, nil] the due date of the todo (optional)
     # @param user_id [Integer] the ID of the user responsible for the todo (default: initialized user ID)
     # @param notes [String, nil] additional notes for the todo (optional)
-    # @return [Hash] the newly created todo hash
+    # @return [HashWithIndifferentAccess] the newly created todo hash
+    # @raise [ArgumentError] if title is empty or meeting_id is invalid
     # @raise [NotFoundError] when meeting is not found
     # @raise [ApiError] when the API request fails
     # @example
     #   client.todo.create(title: "New Todo", meeting_id: 1, due_date: "2024-06-15")
     #   #=> { id: 1, title: "New Todo", due_date: "2024-06-15", ... }
     def create(title:, meeting_id:, due_date: nil, user_id: self.user_id, notes: nil)
+      validate_title!(title)
+      validate_id!(meeting_id, context: "meeting_id")
+
       payload = {title: title, accountableUserId: user_id, notes: notes}
       payload[:dueDate] = due_date if due_date
       response = @conn.post("L10/#{meeting_id}/todos", payload.to_json)
       data = handle_response(response, context: "create todo")
 
-      {
+      transform_response({
         id: data.dig("Id"),
         title: data.dig("Name"),
         notes_url: data.dig("DetailsUrl"),
         due_date: data.dig("DueDate"),
         created_at: DateTime.now.to_s,
         status: "Incomplete"
-      }
+      })
     end
 
     # Marks a todo as complete
@@ -90,7 +96,7 @@ module Bloomy
     # @param todo_id [Integer] the ID of the todo to update
     # @param title [String, nil] the new title of the todo (optional)
     # @param due_date [String, nil] the new due date of the todo (optional)
-    # @return [Hash] the updated todo hash
+    # @return [HashWithIndifferentAccess] the updated todo hash
     # @raise [ArgumentError] if no update fields are provided
     # @raise [NotFoundError] when todo is not found
     # @raise [ApiError] when the API request fails
@@ -107,19 +113,19 @@ module Bloomy
       response = @conn.put("todo/#{todo_id}", payload.to_json)
       handle_response!(response, context: "update todo")
 
-      {
+      transform_response({
         id: todo_id,
         title: title,
         due_date: due_date,
         created_at: nil,
         status: "Incomplete"
-      }
+      })
     end
 
     # Retrieves the details of a specific todo item by its ID.
     #
     # @param todo_id [Integer] The ID of the todo item to retrieve.
-    # @return [Hash] The requested todo hash
+    # @return [HashWithIndifferentAccess] The requested todo hash
     # @raise [NotFoundError] when todo is not found
     # @raise [ApiError] when the API request fails
     # @example
@@ -129,16 +135,16 @@ module Bloomy
       response = @conn.get("todo/#{todo_id}")
       data = handle_response(response, context: "get todo details")
 
-      transform_todo(data)
+      transform_response(build_todo_hash(data))
     end
 
     private
 
-    # Transforms API response hash into standardized todo hash
+    # Builds a standardized todo hash from API response
     #
     # @param todo [Hash] the raw API response hash
-    # @return [Hash] the transformed todo hash
-    def transform_todo(todo)
+    # @return [Hash] the standardized todo hash
+    def build_todo_hash(todo)
       {
         id: todo.dig("Id"),
         title: todo.dig("Name"),

@@ -5,6 +5,8 @@ require "bloomy/utils/get_user_id"
 module Bloomy
   class Headline
     include Bloomy::Utilities::UserIdUtility
+    include Bloomy::Utilities::Transform
+    include Bloomy::Utilities::Validation
 
     # Initializes a new headline instance
     #
@@ -19,38 +21,44 @@ module Bloomy
     # @param title [String] the title of the headline
     # @param owner_id [Integer] the ID of the headline owner
     # @param notes [String] additional notes for the headline
-    # @return [Hash] containing id, title, owner_details, and notes_url
+    # @return [HashWithIndifferentAccess] containing id, title, owner_details, and notes_url
+    # @raise [ArgumentError] if title is empty or meeting_id is invalid
     # @raise [NotFoundError] when meeting is not found
     # @raise [ApiError] when the API request fails
     def create(meeting_id:, title:, owner_id: user_id, notes: nil)
+      validate_title!(title)
+      validate_id!(meeting_id, context: "meeting_id")
+
       response = @conn.post("L10/#{meeting_id}/headlines",
         {title: title, ownerId: owner_id, notes: notes}.to_json)
       data = handle_response(response, context: "create headline")
 
-      {
+      transform_response({
         id: data.dig("Id"),
         title: data.dig("Name"),
         owner_details: {id: data.dig("OwnerId")},
         notes_url: data.dig("DetailsUrl")
-      }
+      })
     end
 
     # Updates a headline
     #
     # @param headline_id [Integer] the ID of the headline to update
     # @param title [String] the new title of the headline
-    # @return [Boolean] true if update was successful
+    # @return [HashWithIndifferentAccess] the updated headline details
     # @raise [NotFoundError] when headline is not found
     # @raise [ApiError] when the API request fails
     def update(headline_id:, title:)
       response = @conn.put("headline/#{headline_id}", {title: title}.to_json)
       handle_response!(response, context: "update headline")
+
+      details(headline_id)
     end
 
     # Get headline details
     #
     # @param headline_id [Integer] the ID of the headline
-    # @return [Hash] containing id, title, notes_url, meeting_details,
+    # @return [HashWithIndifferentAccess] containing id, title, notes_url, meeting_details,
     #                owner_details, archived, created_at, and closed_at
     # @raise [NotFoundError] when headline is not found
     # @raise [ApiError] when the API request fails
@@ -58,7 +66,7 @@ module Bloomy
       response = @conn.get("headline/#{headline_id}?Include_Origin=true")
       data = handle_response(response, context: "get headline details")
 
-      {
+      transform_response({
         id: data.dig("Id"),
         title: data.dig("Name"),
         notes_url: data.dig("DetailsUrl"),
@@ -73,7 +81,7 @@ module Bloomy
         archived: data.dig("Archived"),
         created_at: data.dig("CreateTime"),
         closed_at: data.dig("CloseTime")
-      }
+      })
     end
 
     # Get headlines for a user or a meeting.
@@ -83,7 +91,7 @@ module Bloomy
     # @raise [ArgumentError] if both `user_id` and `meeting_id` are provided
     # @raise [NotFoundError] when user or meeting is not found
     # @raise [ApiError] when the API request fails
-    # @return [Array<Hash>] a list of headlines containing:
+    # @return [Array<HashWithIndifferentAccess>] a list of headlines containing:
     #   - id
     #   - title
     #   - meeting_details
@@ -116,7 +124,7 @@ module Bloomy
         data = handle_response(response, context: "list user headlines")
       end
 
-      data.map do |headline|
+      transform_array(data.map do |headline|
         {
           id: headline.dig("Id"),
           title: headline.dig("Name"),
@@ -132,7 +140,7 @@ module Bloomy
           created_at: headline.dig("CreateTime"),
           closed_at: headline.dig("CloseTime")
         }
-      end
+      end)
     end
 
     # Deletes a headline

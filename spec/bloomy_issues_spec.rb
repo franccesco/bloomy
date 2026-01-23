@@ -3,7 +3,7 @@
 RSpec.describe "Issue Operations" do
   before(:all) do
     @client = Bloomy::Client.new
-    @meeting_id = @client.meeting.create("Test Meeting")[:meeting_id]
+    @meeting_id = @client.meeting.create(title: "Test Meeting")[:id]
     @issue = @client.issue.create(meeting_id: @meeting_id, title: "Test Issue", notes: "Note!")
     @issue_id = @issue[:id]
   end

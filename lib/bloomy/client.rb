@@ -27,6 +27,16 @@ module Bloomy
 
     attr_reader :configuration, :user, :todo, :goal, :meeting, :scorecard, :issue, :headline
 
+    # Returns the current user's ID
+    #
+    # @return [Integer] the current user's ID
+    # @example
+    #   client.user_id
+    #   #=> 12345
+    def user_id
+      @user_id ||= @user.user_id
+    end
+
     # Initializes a new Client instance
     #
     # @param api_key [String, nil] API key for authentication (optional if configured elsewhere)

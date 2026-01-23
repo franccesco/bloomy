@@ -4,7 +4,7 @@ RSpec.describe "Meeting Operations" do
   # Set up a test meeting and tear it down
   before(:all) do
     @client = Bloomy::Client.new
-    @meeting_id = @client.meeting.create("Test Meeting", add_self: true)[:meeting_id]
+    @meeting_id = @client.meeting.create(title: "Test Meeting", add_self: true)[:id]
   end
 
   after(:all) do
