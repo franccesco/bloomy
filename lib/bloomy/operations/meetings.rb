@@ -8,6 +8,8 @@ module Bloomy
   #   This class is already initialized via the client and usable as `client.meeting.method`
   class Meeting
     include Bloomy::Utilities::UserIdUtility
+    include Bloomy::Utilities::Transform
+    include Bloomy::Utilities::Validation
 
     # Initializes a new Meeting instance
     #
@@ -18,24 +20,28 @@ module Bloomy
 
     # Lists all meetings for a specific user
     #
-    # @param user_id [Integer] the ID of the user (default is the initialized user ID)
-    # @return [Array<Hash>] an array of hashes containing meeting details
+    # @param user_id [Integer, nil] the ID of the user (default: current user)
+    # @return [Array<HashWithIndifferentAccess>] an array of hashes containing meeting details
     # @raise [NotFoundError] when user is not found
     # @raise [ApiError] when the API request fails
     # @example
     #   client.meeting.list
-    #   #=> [{ id: 123, name: "Team Meeting" }, ...]
-    def list(user_id = self.user_id)
+    #   #=> [{ id: 123, title: "Team Meeting" }, ...]
+    #
+    # @example List meetings for specific user
+    #   client.meeting.list(user_id: 42)
+    def list(user_id: nil)
+      user_id ||= self.user_id
       response = @conn.get("L10/#{user_id}/list")
       data = handle_response(response, context: "list meetings")
 
-      data.map { |meeting| {id: meeting.dig("Id"), title: meeting.dig("Name")} }
+      transform_array(data.map { |meeting| {id: meeting.dig("Id"), title: meeting.dig("Name")} })
     end
 
     # Lists all attendees for a specific meeting
     #
     # @param meeting_id [Integer] the ID of the meeting
-    # @return [Array<Hash>] an array of hashes containing attendee details
+    # @return [Array<HashWithIndifferentAccess>] an array of hashes containing attendee details
     # @raise [NotFoundError] when meeting is not found
     # @raise [ApiError] when the API request fails
     # @example
@@ -45,14 +51,14 @@ module Bloomy
       response = @conn.get("L10/#{meeting_id}/attendees")
       data = handle_response(response, context: "get meeting attendees")
 
-      data.map { |attendee| {id: attendee.dig("Id"), name: attendee.dig("Name")} }
+      transform_array(data.map { |attendee| {id: attendee.dig("Id"), name: attendee.dig("Name")} })
     end
 
     # Lists all issues for a specific meeting
     #
     # @param meeting_id [Integer] the ID of the meeting
     # @param include_closed [Boolean] whether to include closed issues (default: false)
-    # @return [Array<Hash>] an array of hashes containing issue details
+    # @return [Array<HashWithIndifferentAccess>] an array of hashes containing issue details
     # @raise [NotFoundError] when meeting is not found
     # @raise [ApiError] when the API request fails
     # @example
@@ -62,7 +68,7 @@ module Bloomy
       response = @conn.get("L10/#{meeting_id}/issues?include_resolved=#{include_closed}")
       data = handle_response(response, context: "get meeting issues")
 
-      data.map do |issue|
+      transform_array(data.map do |issue|
         {
           id: issue.dig("Id"),
           title: issue.dig("Name"),
@@ -74,14 +80,14 @@ module Bloomy
           meeting_id: meeting_id,
           meeting_title: issue.dig("Origin")
         }
-      end
+      end)
     end
 
     # Lists all todos for a specific meeting
     #
     # @param meeting_id [Integer] the ID of the meeting
     # @param include_closed [Boolean] whether to include closed todos (default: false)
-    # @return [Array<Hash>] an array of hashes containing todo details
+    # @return [Array<HashWithIndifferentAccess>] an array of hashes containing todo details
     # @raise [NotFoundError] when meeting is not found
     # @raise [ApiError] when the API request fails
     # @example
@@ -91,7 +97,7 @@ module Bloomy
       response = @conn.get("L10/#{meeting_id}/todos?INCLUDE_CLOSED=#{include_closed}")
       data = handle_response(response, context: "get meeting todos")
 
-      data.map do |todo|
+      transform_array(data.map do |todo|
         {
           id: todo.dig("Id"),
           title: todo.dig("Name"),
@@ -103,13 +109,13 @@ module Bloomy
           user_id: todo.dig("Owner", "Id"),
           user_name: todo.dig("Owner", "Name")
         }
-      end
+      end)
     end
 
     # Lists all metrics for a specific meeting
     #
     # @param meeting_id [Integer] the ID of the meeting
-    # @return [Array<Hash>] an array of hashes containing metric details
+    # @return [Array<HashWithIndifferentAccess>] an array of hashes containing metric details
     # @raise [NotFoundError] when meeting is not found
     # @raise [ApiError] when the API request fails
     # @example
@@ -121,7 +127,7 @@ module Bloomy
 
       return [] if data.nil? || !data.is_a?(Array)
 
-      data.filter_map do |measurable|
+      transform_array(data.filter_map do |measurable|
         next unless measurable.dig("Id") && measurable.dig("Name")
 
         {
@@ -135,14 +141,14 @@ module Bloomy
           admin_id: measurable.dig("Admin", "Id"),
           admin_name: measurable.dig("Admin", "Name")
         }
-      end
+      end)
     end
 
     # Retrieves details of a specific meeting
     #
     # @param meeting_id [Integer] the ID of the meeting
     # @param include_closed [Boolean] whether to include closed issues and todos (default: false)
-    # @return [Hash] a hash containing detailed information about the meeting
+    # @return [HashWithIndifferentAccess] a hash containing detailed information about the meeting
     # @raise [NotFoundError] when meeting is not found
     # @raise [ApiError] when the API request fails
     # @example
@@ -150,14 +156,14 @@ module Bloomy
     #   #=> { id: 1, name: "Team Meeting", attendees: [...], issues: [...], todos: [...], metrics: [...] }
     def details(meeting_id, include_closed: false)
       meeting = list.find { |m| m[:id] == meeting_id }
-      {
+      transform_response({
         id: meeting&.dig(:id),
         title: meeting&.dig(:title),
         attendees: attendees(meeting_id),
         issues: issues(meeting_id, include_closed: include_closed),
         todos: todos(meeting_id, include_closed: include_closed),
         metrics: metrics(meeting_id)
-      }
+      })
     end
 
     # Creates a new meeting
@@ -165,22 +171,25 @@ module Bloomy
     # @param title [String] the title of the new meeting
     # @param add_self [Boolean] whether to add the current user as an attendee (default: true)
     # @param attendees [Array<Integer>] a list of user IDs to add as attendees
-    # @return [Hash] a hash containing meeting_id, title and attendees array
+    # @return [HashWithIndifferentAccess] a hash containing id, title and attendees array
+    # @raise [ArgumentError] if title is empty
     # @raise [ApiError] when the API request fails
     # @example
-    #   client.meeting.create("New Meeting", attendees: [2, 3])
-    #   #=> { meeting_id: 1, title: "New Meeting", attendees: [2, 3] }
-    def create(title, add_self: true, attendees: [])
+    #   client.meeting.create(title: "New Meeting", attendees: [2, 3])
+    #   #=> { id: 1, title: "New Meeting", attendees: [2, 3] }
+    def create(title:, add_self: true, attendees: [])
+      validate_title!(title)
+
       payload = {title: title, addSelf: add_self}.to_json
       response = @conn.post("L10/create", payload)
       data = handle_response(response, context: "create meeting")
 
       meeting_id = data.dig("meetingId")
-      meeting_details = {meeting_id: meeting_id, title: title}
       attendees.each do |attendee|
         @conn.post("L10/#{meeting_id}/attendees/#{attendee}")
       end
-      meeting_details.merge(attendees: attendees)
+
+      transform_response({id: meeting_id, title: title, attendees: attendees})
     end
 
     # Deletes a meeting
